@@ -55,16 +55,19 @@ ol, ul {
 
 /*Board color scheme Wheat from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html*/
 .board_background{
-  background-image: url("https://i.pinimg.com/originals/23/ef/50/23ef508555a051f642d0b82ca9281154.png") ;
+  background-image: url("./assets/field.png") ;
   display: inline-block;
+  background-size: contain;
 
 }
 .dark-square{
-background-color: RGBA(111,115,210,0);
+  background-color: RGBA(255,255,255,0.1);
 }
 
 .light-square{
-    background-color: RGBA(227,193,111,0.6);
+    background-color: RGBA(0,0,0,0.2);
+    border :  solid RGBA(0,0,0,0)
+    
 }
 
 #player-turn-box{
