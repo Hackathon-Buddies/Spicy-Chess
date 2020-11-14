@@ -3,8 +3,8 @@ import socketIOClient from "socket.io-client";
 import ENDPOINT from "./server-end-point";
 
 const NEW_CHAT_MESSAGE_EVENT = "chat"; // Name of the event
-// const SOCKET_SERVER_URL = ENDPOINT;
-const SOCKET_SERVER_URL = "localhost:5000";
+const SOCKET_SERVER_URL = ENDPOINT;
+// const SOCKET_SERVER_URL = "localhost:5000";
 
 
 const useChat = (roomId) => {
