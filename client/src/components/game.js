@@ -43,7 +43,8 @@ export default class Game extends React.Component {
           name: piece_name,
           owner: piece_owner,
           style: piece_style,
-          start_position: i,
+          current_location: i,
+          position_history: [i],
           kills: 0,
           status: ""
         }
@@ -55,9 +56,7 @@ export default class Game extends React.Component {
         }
       }
     }
-
-    console.log(pieces);
-    this.setState({piecs: pieces});
+    this.setState({pieces: pieces});
   }
 
   createKnightsTest(index) {
@@ -68,6 +67,17 @@ export default class Game extends React.Component {
       squares[i] = new Knight(1);
     }
     this.setState({squares : squares});
+  }
+
+  getPiece(position){
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    Object.keys(pieces).forEach(colour => {
+      for (const piece of pieces[colour]){
+        if (piece.position_history[piece.position_history.length - 1] === position){
+          return piece;
+        }
+      }
+    });
   }
 
   handleClick(i) {
@@ -82,6 +92,7 @@ export default class Game extends React.Component {
       }
       else {
         squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
+        const selectedPiece = this.getPiece(i);
         this.setState({
           status: "Choose destination for the selected piece",
           sourceSelection: i
