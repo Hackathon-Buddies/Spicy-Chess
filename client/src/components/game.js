@@ -40,6 +40,7 @@ export default class Game extends React.Component {
         const piece_style = square.style;
   
         const piece = {
+          id: piece_name + piece_owner + i,
           name: piece_name,
           owner: piece_owner,
           style: piece_style,
@@ -82,10 +83,26 @@ export default class Game extends React.Component {
     return selectedPiece;
   }
 
+  updatePiece = (updated_piece) => {
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    Object.keys(pieces).forEach(colour => {
+      for (const piece of pieces[colour]){
+        if (piece.id === updated_piece.id){
+          pieces[colour][piece] = updated_piece;      
+        }
+      }
+    });
+    this.setState({pieces: pieces});
+  }
+
   handleClick(i) {
     const squares = [...this.state.squares];
     const selectedPiece = this.getPiece(i);
+    if (selectedPiece !== null){
+      console.log(selectedPiece.kills);
+    }
     console.log(selectedPiece);
+    
     if (this.state.sourceSelection === -1) {
       if (!squares[i] || squares[i].player !== this.state.player) {
         this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
@@ -117,13 +134,17 @@ export default class Game extends React.Component {
       const blackFallenSoldiers = [];
       const isDestEnemyOccupied = Boolean(squares[i]);
 
-      if (isDestEnemyOccupied){
-        
-      }
+      
 
       const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied);
 
       if (isMovePossible) {
+        if (isDestEnemyOccupied){
+          if (selectedPiece !== null){
+            selectedPiece.kills = selectedPiece.kills + 1;
+            this.updatePiece(selectedPiece);
+          }
+        }
         if (squares[i] !== null) {
           if (squares[i].player === 1) {
             whiteFallenSoldiers.push(squares[i]);
