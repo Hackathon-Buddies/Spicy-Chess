@@ -76,8 +76,11 @@ export default class Game extends React.Component {
   }
 
 
-  getPieceByInitialPosition = (initialPosition) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+  getPieceByInitialPosition = (initialPosition, tempPieces) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    if (tempPieces){
+      pieces = tempPieces;
+    }
     let selectedPiece = null;
     Object.keys(pieces).forEach(colour => {
       for (const piece of pieces[colour]){
@@ -117,31 +120,44 @@ export default class Game extends React.Component {
     return selectedPiece;
   }
 
-  killPieceAt = (position) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
-    const squares = [...this.state.squares];
+  killPieceAt = (position, piecesAndSquares) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let squares = [...this.state.squares];
+
+    if (piecesAndSquares){
+      pieces = piecesAndSquares.pieces;
+      squares = piecesAndSquares.squares;
+    }
+
     const piece = this.getPiece(position);
-    let new_pieces = pieces;
     if (piece !== null){
       piece.alive = false;
       squares[position] = null;
-      new_pieces = this.updatePiecesObject(pieces,piece);
+      pieces = this.updatePiecesObject(pieces,piece);
     }
     this.setState({
       squares: squares,
-      pieces: new_pieces
+      pieces: pieces
     });
+
+    const return_obj = {
+      squares: squares,
+      pieces: pieces
+    }
+    return return_obj;
   }
 
   // If you give it only a position, it will resurect a piece that used to be there or nothing if incorrect index
   // If you give it a dead piece and a custom position.. it will spawn that piece there instead killing any piece on that spot
-  resurrectPiece = (position, piece) => {
+  resurrectPiece = (position, piece, piecesAndSquares) => {
     let newPiece = null;
     let currentPiece = null;
     if(piece){
       currentPiece = piece;
-    } else {
+    } else if (!piecesAndSquares){
       currentPiece = this.getPieceByInitialPosition(position);
+    } else {
+      currentPiece = this.getPieceByInitialPosition(position, piecesAndSquares.pieces);
     }
 
     switch(currentPiece.name){
@@ -165,25 +181,36 @@ export default class Game extends React.Component {
         break;
     }
 
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
-    const squares = [...this.state.squares];
-    let new_pieces = pieces;
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let squares = [...this.state.squares];
+
+    if (piecesAndSquares){
+      pieces = piecesAndSquares.pieces;
+      squares = piecesAndSquares.squares;
+    }
+
     if (currentPiece !== null && currentPiece.alive !== true){
       let occupyingPiece = null;
       if (squares[position] !== null){
         occupyingPiece = this.getPiece(position);
         occupyingPiece.alive = false;
-        new_pieces = this.updatePiecesObject(pieces, occupyingPiece);
+        pieces = this.updatePiecesObject(pieces, occupyingPiece);
       }
       squares[position] = newPiece;
       currentPiece.alive = true;
       currentPiece.position_history = [position];
-      new_pieces = this.updatePiecesObject(pieces, currentPiece);
+      pieces = this.updatePiecesObject(pieces, currentPiece);
     }
     this.setState({
       squares: squares,
-      pieces: new_pieces
-    }); 
+      pieces: pieces
+    });
+
+    const return_obj = {
+      squares: squares,
+      pieces: pieces
+    }
+    return return_obj;
   }
 
   checkKingIsAlive = (player) => {
@@ -217,6 +244,30 @@ export default class Game extends React.Component {
       currentPlayer = 1;
     }
     this.setState({player: currentPlayer});
+  }
+
+  // All live pieces return to their initial position
+  theFloodEffect = () => {
+    let squares = [...this.state.squares];
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    
+    Object.keys(pieces).forEach(colour => {
+      for (let piece of pieces[colour]){
+        // If piece is alive and was moved
+        if (piece.alive && piece.position_history.length > 1){
+          const currentPosition = piece.position_history[piece.position_history.length - 1];
+          const originalPosition = piece.position_history[0];
+          let piecesAndSquares = {pieces:pieces, squares:squares};
+          piecesAndSquares = this.killPieceAt(currentPosition,piecesAndSquares);
+          piecesAndSquares = this.resurrectPiece(originalPosition,null,piecesAndSquares);
+
+          squares = piecesAndSquares.squares;
+          pieces = piecesAndSquares.pieces;
+
+        }
+      }
+    });
+    this.setState({squares: squares, pieces: pieces});
   }
 
   handleClick(i) {
@@ -336,6 +387,7 @@ export default class Game extends React.Component {
         <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
         <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
         <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
+        <button onClick={() => this.theFloodEffect()}>Activate the Flood</button>
 
         <div className="icons-attribution">
           <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
