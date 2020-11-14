@@ -18,7 +18,10 @@ export default class Game extends React.Component {
       sourceSelection: -1,
       status: '',
       turn: 'white',
-      pieces: {}
+      pieces: {
+        white : [],
+        black: []
+      }
     }
   }
 
@@ -45,13 +48,16 @@ export default class Game extends React.Component {
           status: ""
         }
         
-        // for (let j = 0; j<)
-
-        // pieces[`${piece_owner}-${piece_name}`] 
-
+        if (piece_owner === 1){
+          pieces.white.push(piece);
+        } else {
+          pieces.black.push(piece);
+        }
       }
     }
 
+    console.log(pieces);
+    this.setState({piecs: pieces});
   }
 
   createKnightsTest(index) {
