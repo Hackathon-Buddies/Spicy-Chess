@@ -1,3 +1,4 @@
+import './index.css';
 import React, { useState } from "react";
 import ChatRoom from "./components/chatRoom.js";
 import Game from './components/game.js';
