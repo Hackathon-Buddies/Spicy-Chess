@@ -17,8 +17,41 @@ export default class Game extends React.Component {
       player: 1,
       sourceSelection: -1,
       status: '',
-      turn: 'white'
+      turn: 'white',
+      pieces: {}
     }
+  }
+
+  componentDidMount() {
+    // Runs after the first render() lifecycle
+
+    const squares = [...this.state.squares];
+    // Best practice to copy JSON objects.
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+
+    for (let i = 0; i < squares.length; i++){
+      const square = squares[i];
+      if (square !== null){
+        const piece_name = square.constructor.name;
+        const piece_owner = square.player;
+        const piece_style = square.style;
+  
+        const piece = {
+          name: piece_name,
+          owner: piece_owner,
+          style: piece_style,
+          start_position: i,
+          kills: 0,
+          status: ""
+        }
+        
+        // for (let j = 0; j<)
+
+        // pieces[`${piece_owner}-${piece_name}`] 
+
+      }
+    }
+
   }
 
   createKnightsTest(index) {
