@@ -59,6 +59,8 @@ const useChat = (roomId) => {
 
     };
 
+
+    console.log("message being sent/recieved");
     return { messages, sendMessage };
 };
 

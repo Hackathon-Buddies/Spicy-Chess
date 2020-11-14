@@ -13,13 +13,17 @@
 .messages-container {
     flex: 1;
     min-height: 60vh;
+    max-height: 60vh;
     overflow: auto;
+    
     border: 1px solid black;
     border-radius: 7px 7px 0 0;
 }
 
 .messages-list {
     list-style-type: none;
+    overflow-y:scroll;
+    overflow:hidden;
     padding: 0;
 }
 
@@ -62,3 +66,7 @@
 .messages-container, .new-message-input-field, .send-message-button {
     border-color: #9a9a9a;
 }
+
+#chat-Room-Area{
+    overflow-y:scroll;
+  }
