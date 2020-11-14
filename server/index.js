@@ -8,16 +8,28 @@ io.on("connection", socket => {
 
     console.log("A user has connected!");
 
-    socket.on("joinRoom", room => {
-        socket.join(room);
+    // join room
+    // const { roomId } = socket.handshake.query;
+    const roomId = 'global'
+
+    socket.join(roomId);
+    console.log("joined room: ",roomId)
+
+    // Listen for message
+
+    socket.on("chat", (data) => {
+        io.in(roomId).emit("chat", data);
+        console.log("chat data: ",data)
     });
 
-    socket.on("chat", ({room,msg}) => {
-        socket.to(room).emit("chat",msg);
+
+    // Listen for game state changes
+    socket.on("gameState", (data) => {
+        io.in(roomId).emit("gameState", data);
     });
 
-    socket.on("gameState", ({room, data}) => {
-        socket.to(room).emit("gameState",data);
+    socket.on("disconnect", () => {
+        socket.leave(roomId);
     });
 
 });
