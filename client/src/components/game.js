@@ -26,9 +26,14 @@ export default class Game extends React.Component {
         white : [],
         black: []
       },
-      gameOver: false
+      gameOver: false,
+      diceNumber : 0
     }
   }
+  
+
+
+  
 
   componentDidMount() {
     // Runs after the first render() lifecycle
@@ -165,6 +170,8 @@ export default class Game extends React.Component {
         break;
     }
 
+    
+
     const pieces = JSON.parse(JSON.stringify(this.state.pieces));
     const squares = [...this.state.squares];
     let new_pieces = pieces;
@@ -283,6 +290,14 @@ export default class Game extends React.Component {
     }
   }
 
+  diceRoll() {
+    const min = 1;
+    const max = 20;
+    const rand = Math.floor(min + Math.random() * (max - min));
+    console.log(rand);
+    this.setState({ diceNumber: rand}); 
+  }
+
   render() {
 
     return (
@@ -313,6 +328,11 @@ export default class Game extends React.Component {
           </div>
         </div>
         {/* Test buttons */}
+
+
+        <button onClick={() => this.diceRoll()}>Click</button>
+        <div>The number is: {this.state.diceNumber}</div>
+
         <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
         <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
         <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
