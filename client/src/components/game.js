@@ -69,20 +69,23 @@ export default class Game extends React.Component {
     this.setState({squares : squares});
   }
 
-  getPiece(position){
+  getPiece = (position) => {
     const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let selectedPiece = null;
     Object.keys(pieces).forEach(colour => {
       for (const piece of pieces[colour]){
         if (piece.position_history[piece.position_history.length - 1] === position){
-          return piece;
+          selectedPiece = piece;
         }
       }
     });
+    return selectedPiece;
   }
 
   handleClick(i) {
     const squares = [...this.state.squares];
-
+    const selectedPiece = this.getPiece(i);
+    console.log(selectedPiece);
     if (this.state.sourceSelection === -1) {
       if (!squares[i] || squares[i].player !== this.state.player) {
         this.setState({ status: "Wrong selection. Choose player " + this.state.player + " pieces." });
@@ -92,7 +95,6 @@ export default class Game extends React.Component {
       }
       else {
         squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
-        const selectedPiece = this.getPiece(i);
         this.setState({
           status: "Choose destination for the selected piece",
           sourceSelection: i
@@ -114,6 +116,11 @@ export default class Game extends React.Component {
       const whiteFallenSoldiers = [];
       const blackFallenSoldiers = [];
       const isDestEnemyOccupied = Boolean(squares[i]);
+
+      if (isDestEnemyOccupied){
+        
+      }
+
       const isMovePossible = squares[this.state.sourceSelection].isMovePossible(this.state.sourceSelection, i, isDestEnemyOccupied);
 
       if (isMovePossible) {
