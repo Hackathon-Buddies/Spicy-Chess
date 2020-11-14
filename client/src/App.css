@@ -1,0 +1,9 @@
+.outer-container{
+    text-align: center;
+}
+
+.join-wrapper{
+    width: 75%;
+    display: inline-block;
+    text-align: center;
+}
