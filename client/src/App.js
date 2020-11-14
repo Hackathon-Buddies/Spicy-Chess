@@ -24,7 +24,7 @@ function App() {
 
     const gameContent = (<div className="outer-container">
         <div className="join-wrapper">
-            <Game />
+            <Game room={room} />
         </div>
         <ChatRoom room={room} />
 
