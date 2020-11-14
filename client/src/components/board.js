@@ -27,7 +27,7 @@ export default class Board extends React.Component {
     }
 
     return (
-      <div>
+      <div className = "board_background">
         {board}
       </div>
     );
