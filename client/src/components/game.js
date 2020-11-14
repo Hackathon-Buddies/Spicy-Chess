@@ -5,6 +5,11 @@ import Board from './board.js';
 import FallenSoldierBlock from './fallen-soldier-block.js';
 import initialiseChessBoard from '../helpers/board-initialiser.js';
 import Knight from '../pieces/knight';
+import Queen from '../pieces/queen';
+import King from '../pieces/king';
+import Pawn from '../pieces/pawn';
+import Bishop from '../pieces/bishop';
+import Rook from '../pieces/rook';
 
 export default class Game extends React.Component {
   constructor() {
@@ -70,6 +75,35 @@ export default class Game extends React.Component {
     this.setState({squares : squares});
   }
 
+
+  getPieceByInitialPosition = (initialPosition) => {
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let selectedPiece = null;
+    Object.keys(pieces).forEach(colour => {
+      for (const piece of pieces[colour]){
+        if (piece.position_history[0] === initialPosition){
+          selectedPiece = piece;
+          break;
+        }
+      }
+    });
+    return selectedPiece;
+  }
+
+  getPieceById = (id) => {
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let selectedPiece = null;
+    Object.keys(pieces).forEach(colour => {
+      for (const piece of pieces[colour]){
+        if (piece.id === id){
+          selectedPiece = piece;
+          break;
+        }
+      }
+    });
+    return selectedPiece;
+  }
+
   getPiece = (position) => {
     const pieces = JSON.parse(JSON.stringify(this.state.pieces));
     let selectedPiece = null;
@@ -81,6 +115,69 @@ export default class Game extends React.Component {
       }
     });
     return selectedPiece;
+  }
+
+  killPieceAt = (position) => {
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    const squares = [...this.state.squares];
+    const piece = this.getPiece(position);
+    let new_pieces = pieces;
+    if (piece !== null){
+      piece.alive = false;
+      squares[position] = null;
+      new_pieces = this.updatePiecesObject(pieces,piece);
+    }
+    this.setState({
+      squares: squares,
+      pieces: new_pieces
+    });
+  }
+
+  // If you give it only a position, it will 
+
+  resurrectPiece = (position, piece) => {
+    let newPiece = null;
+    let currentPiece = null;
+    if(piece){
+      currentPiece = piece;
+    } else {
+      currentPiece = this.getPieceByInitialPosition(position);
+    }
+
+    switch(currentPiece.name){
+      case 'Rook':
+        newPiece = new Rook(currentPiece.owner);
+        break;
+      case 'Pawn':
+        newPiece = new Pawn(currentPiece.owner);
+        break;
+      case 'Bishop':
+        newPiece = new Bishop(currentPiece.owner);
+        break;
+      case 'King':
+        newPiece = new King(currentPiece.owner);
+        break;
+      case 'Queen':
+        newPiece = new Queen(currentPiece.owner);
+        break;
+      case 'Knight':
+        newPiece = new Knight(currentPiece.owner);
+        break;
+    }
+
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    const squares = [...this.state.squares];
+    let new_pieces = pieces;
+    if (currentPiece !== null && currentPiece.alive !== true){
+      squares[position] = newPiece;
+      currentPiece.alive = true;
+      currentPiece.position_history = [position];
+      new_pieces = this.updatePiecesObject(pieces, currentPiece);
+    }
+    this.setState({
+      squares: squares,
+      pieces: new_pieces
+    }); 
   }
 
   updatePiecesObject = (pieces, updated_piece) => {
@@ -151,18 +248,7 @@ export default class Game extends React.Component {
           if (isMovePossible){
             console.log("A piece was properly selected.. so moving..");
             let previouslySelectedPiece = this.getPiece(sourceSelection);
-            // if (moving){
-            //   let willBeInCheck = false;
-            //   if (isInCheck){
-            //     if (previouslySelectedPiece.name === 'King'){
-            //       // Check if king will be in check after this.
-            //       willBeInCheck = this.isInCheck(currentPlayer, i, -1);
-            //     } else {
-            //       // Check if king will be exposed by moving another piece
-            //       willBeInCheck = this.isInCheck(currentPlayer, i, -1);
-            //     }
-            //   }
-            // }
+         
             previouslySelectedPiece.position_history.push(i);
             if (attacking){
               if (selectedPiece.name === 'King'){
@@ -171,35 +257,6 @@ export default class Game extends React.Component {
               selectedPiece.alive = false;
               pieces = this.updatePiecesObject(pieces, selectedPiece);
               previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
-              // let willBeInCheck = false;
-              // if (isInCheck){
-              //   // When attacking with king while in check.
-              //   if (previouslySelectedPiece.name === 'King'){
-              //     // Check if the piece is defended or not.
-              //     willBeInCheck = this.isInCheck(currentPlayer, i, -1);
-              //   } else {
-              //     // Check if the king will still be in check after killing piece at i
-              //     willBeInCheck = this.isInCheck(currentPlayer,null,i);
-              //   }
-              // } else {
-              //   // Attacking with king when not in check.
-              //   if (previouslySelectedPiece.name === 'King'){
-              //     // Check if piece is defended or not.
-              //     willBeInCheck = this.isInCheck(currentPlayer, i, i);
-              //   } else {
-              //     // Will attacking with another piece expose king ?
-              //     willBeInCheck = this.isInCheck(currentPlayer,null,i);
-              //   }
-              // }
-              // if (willBeInCheck){
-              //   console.log("Still in check.. do something else..");
-              //   squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
-              //   sourceSelection = -1;
-              // } else {
-              //   selectedPiece.alive = false;
-              //   pieces = this.updatePiecesObject(pieces, selectedPiece);
-              //   previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
-              // }
             }
             pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
             console.log(previouslySelectedPiece);
@@ -225,39 +282,6 @@ export default class Game extends React.Component {
       console.log("Game over.. stop clicking now...");
     }
   }
-
-  // // Give -1 for killed piece index if not using.
-  // isCheckForPlayer (player, position, killedPieceIndex, movingAllyPiece){
-  //   const pieces = JSON.parse(JSON.stringify(this.state.pieces));
-  //   const squares = this.state.squares;
-  //   const player_colour = player === 1 ? "white" : "black";
-  //   const enemy_colour = player === 1 ? "black" : "white";
-
-  //   let king_position = null;
-  //   let inCheck = false;
-
-  //   // If null use original position of king
-  //   if (position !== null){
-  //     king_position = position;
-  //   } else {
-  //     for (let piece of pieces[player_colour]){
-  //       if (piece.name === 'King'){
-  //         king_position = piece.position_history[piece.position_history.length - 1];
-  //       }
-  //     }
-  //   }
-  //   for (let piece of pieces[enemy_colour]){
-  //     if (piece.alive){
-  //       const piece_location = piece.position_history[piece.position_history.length - 1];
-  //       const isMovePossible = squares[piece_location].isMovePossible(piece_location, king_position, true);
-  //       if(isMovePossible && piece_location !== killedPieceIndex){
-  //         inCheck = true;
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   return inCheck;
-  // }
 
   render() {
 
@@ -290,7 +314,10 @@ export default class Game extends React.Component {
         </div>
         {/* Test buttons */}
         <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
-        <button onClick={() => this.createKnightsTest(35)}>add knights2</button>
+        <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
+        <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
+        
+        {/* <input onChange={}></input> */}
 
         <div className="icons-attribution">
           <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
