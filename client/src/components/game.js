@@ -133,8 +133,8 @@ export default class Game extends React.Component {
     });
   }
 
-  // If you give it only a position, it will 
-
+  // If you give it only a position, it will resurect a piece that used to be there or nothing if incorrect index
+  // If you give it a dead piece and a custom position.. it will spawn that piece there instead killing any piece on that spot
   resurrectPiece = (position, piece) => {
     let newPiece = null;
     let currentPiece = null;
@@ -169,6 +169,12 @@ export default class Game extends React.Component {
     const squares = [...this.state.squares];
     let new_pieces = pieces;
     if (currentPiece !== null && currentPiece.alive !== true){
+      let occupyingPiece = null;
+      if (squares[position] !== null){
+        occupyingPiece = this.getPiece(position);
+        occupyingPiece.alive = false;
+        new_pieces = this.updatePiecesObject(pieces, occupyingPiece);
+      }
       squares[position] = newPiece;
       currentPiece.alive = true;
       currentPiece.position_history = [position];
@@ -178,6 +184,18 @@ export default class Game extends React.Component {
       squares: squares,
       pieces: new_pieces
     }); 
+  }
+
+  checkKingIsAlive = (player) => {
+    const whiteKingID = "King160";
+    const blackKingID = "King24";
+    let alive = false;
+    if (player === 1){
+      alive = this.getPieceById(whiteKingID).alive;
+    } else {
+      alive = this.getPieceById(blackKingID).alive;
+    }
+    return alive;
   }
 
   updatePiecesObject = (pieces, updated_piece) => {
@@ -211,6 +229,8 @@ export default class Game extends React.Component {
     let sourceSelection = this.state.sourceSelection;
     let attacking = false;
     let moving = false;
+
+    gameOver = !this.checkKingIsAlive(currentPlayer);
 
     if (!gameOver){
        // Selecting new piece
@@ -316,8 +336,6 @@ export default class Game extends React.Component {
         <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
         <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
         <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
-        
-        {/* <input onChange={}></input> */}
 
         <div className="icons-attribution">
           <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
