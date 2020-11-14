@@ -9,8 +9,7 @@ io.on("connection", socket => {
     console.log("A user has connected!");
 
     // join room
-    // const { roomId } = socket.handshake.query;
-    const roomId = 'global'
+    const { roomId } = socket.handshake.query;
 
     socket.join(roomId);
     console.log("joined room: ",roomId)
