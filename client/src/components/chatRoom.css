@@ -21,9 +21,8 @@
     border: 1px solid black;
     border-radius: 7px 7px 0 0;
     position: relative;
-    background-color: #8BC6EC;
-    background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
-    
+    background-color: rgb(255, 255, 255);
+
 }
 
 .messages-list {
