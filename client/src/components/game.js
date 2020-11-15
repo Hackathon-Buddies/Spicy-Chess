@@ -257,19 +257,20 @@ export default class Game extends React.Component {
     return newPiece
   }
 
-
   // If you give it only a position, it will resurect a piece that used to be there or nothing if incorrect index
   // If you give it a dead piece and a custom position.. it will spawn that piece there instead killing any piece on that spot
-  resurrectPiece = (position, piece) => {
+  resurrectPiece = (position, piece, piecesAndSquares) => {
     let newPiece = null;
     let currentPiece = null;
     if(piece){
       currentPiece = piece;
-    } else {
+    } else if (!piecesAndSquares){
       currentPiece = this.getPieceByInitialPosition(position);
+    } else {
+      currentPiece = this.getPieceByInitialPosition(position, piecesAndSquares.pieces);
     }
 
-    newPiece = this.createPieceObject(currentPiece.name,currentPiece.owner);
+    newPiece = this.createPieceObject(currentPiece.name,currentPiece.owner,currentPiece.kills);
 
     let pieces = JSON.parse(JSON.stringify(this.state.pieces));
     let squares = [...this.state.squares];
@@ -445,11 +446,12 @@ export default class Game extends React.Component {
               }
               pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
               console.log(previouslySelectedPiece);
-              squares[i] = squares[sourceSelection];
+              let piece_object = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
+              squares[i] = piece_object;
+              squares[i].style = { ...squares[i].style, backgroundColor: "" };
               squares[i].piece_name = this.getPiece(sourceSelection).name;
               console.log("Name of square at this point");
               console.log(squares[i].piece_name);
-              squares[i].style = { ...squares[i].style, backgroundColor: "" };
               squares[sourceSelection] = null;
               sourceSelection = -1;
               this.switchPlayerTurn();
