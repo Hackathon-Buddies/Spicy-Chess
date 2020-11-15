@@ -17,10 +17,10 @@ const ChatRoom = (props) => {
   };
 
   const handleSendMessage = () => {
-    sendMessage(newMessage);
-    setNewMessage("");
-
-
+    if(!newMessage.length == 0){
+      sendMessage(newMessage);
+      setNewMessage("");
+    }
   };
 
 
@@ -42,7 +42,8 @@ const ChatRoom = (props) => {
           {messages.map((message, i) => (
             <li id=""
               key={i}
-              className={`message-item ${message.ownedByCurrentUser ? "my-message" : "received-message"
+              className={`message-item ${
+                message.ownedByCurrentUser ? "my-message" : "received-message"
                 }`}
             >
               {message.body}

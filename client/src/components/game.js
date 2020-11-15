@@ -155,8 +155,11 @@ export default class Game extends React.Component {
   }
 
 
-  getPieceByInitialPosition = (initialPosition) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+  getPieceByInitialPosition = (initialPosition, tempPieces) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    if (tempPieces){
+      pieces = tempPieces;
+    }
     let selectedPiece = null;
     Object.keys(pieces).forEach(colour => {
       for (const piece of pieces[colour]){
@@ -169,8 +172,11 @@ export default class Game extends React.Component {
     return selectedPiece;
   }
 
-  getPieceById = (id) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+  getPieceById = (id, tempPieces) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    if (tempPieces){
+      pieces = tempPieces;
+    }
     let selectedPiece = null;
     Object.keys(pieces).forEach(colour => {
       for (const piece of pieces[colour]){
@@ -183,8 +189,11 @@ export default class Game extends React.Component {
     return selectedPiece;
   }
 
-  getPiece = (position) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+  getPiece = (position,tempPieces) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    if (tempPieces){
+      pieces = tempPieces;
+    }
     let selectedPiece = null;
     Object.keys(pieces).forEach(colour => {
       for (const piece of pieces[colour]){
@@ -196,46 +205,58 @@ export default class Game extends React.Component {
     return selectedPiece;
   }
 
-  killPieceAt = (position) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
-    const squares = [...this.state.squares];
+  killPieceAt = (position, piecesAndSquares) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let squares = [...this.state.squares];
+
+    if (piecesAndSquares){
+      pieces = piecesAndSquares.pieces;
+      squares = piecesAndSquares.squares;
+    }
+
     const piece = this.getPiece(position);
-    let new_pieces = pieces;
     if (piece !== null){
       piece.alive = false;
       squares[position] = null;
-      new_pieces = this.updatePiecesObject(pieces,piece);
+      pieces = this.updatePiecesObject(pieces,piece);
     }
     this.setState({
       squares: squares,
-      pieces: new_pieces
+      pieces: pieces
     });
+
+    const return_obj = {
+      squares: squares,
+      pieces: pieces
+    }
+    return return_obj;
   }
 
-  createPieceObject(name, owner){
+  createPieceObject = (name,owner,kills) => {
     let newPiece = null;
     switch(name){
       case 'Rook':
-        newPiece = new Rook(owner);
+        newPiece = new Rook(owner,kills);
         break;
       case 'Pawn':
-        newPiece = new Pawn(owner);
+        newPiece = new Pawn(owner,kills);
         break;
       case 'Bishop':
-        newPiece = new Bishop(owner);
+        newPiece = new Bishop(owner,kills);
         break;
       case 'King':
-        newPiece = new King(owner);
+        newPiece = new King(owner,kills);
         break;
       case 'Queen':
-        newPiece = new Queen(owner);
+        newPiece = new Queen(owner,kills);
         break;
       case 'Knight':
-        newPiece = new Knight(owner);
+        newPiece = new Knight(owner,kills);
         break;
     }
-    return newPiece;
+    return newPiece
   }
+
 
   // If you give it only a position, it will resurect a piece that used to be there or nothing if incorrect index
   // If you give it a dead piece and a custom position.. it will spawn that piece there instead killing any piece on that spot
@@ -250,35 +271,63 @@ export default class Game extends React.Component {
 
     newPiece = this.createPieceObject(currentPiece.name,currentPiece.owner);
 
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
-    const squares = [...this.state.squares];
-    let new_pieces = pieces;
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let squares = [...this.state.squares];
+
+    if (piecesAndSquares){
+      pieces = piecesAndSquares.pieces;
+      squares = piecesAndSquares.squares;
+    }
+
     if (currentPiece !== null && currentPiece.alive !== true){
       let occupyingPiece = null;
       if (squares[position] !== null){
-        occupyingPiece = this.getPiece(position);
-        occupyingPiece.alive = false;
-        new_pieces = this.updatePiecesObject(pieces, occupyingPiece);
+        occupyingPiece = this.getPiece(position, pieces);
+        piecesAndSquares = this.resurrectPiece(occupyingPiece.position_history[0], occupyingPiece, piecesAndSquares);
+        pieces = this.updatePiecesObject(pieces, occupyingPiece);
       }
       squares[position] = newPiece;
+      squares[position].piece_name = newPiece.constructor.name;
       currentPiece.alive = true;
       currentPiece.position_history = [position];
-      new_pieces = this.updatePiecesObject(pieces, currentPiece);
+      pieces = this.updatePiecesObject(pieces, currentPiece);
     }
     this.setState({
       squares: squares,
-      pieces: new_pieces
-    }); 
+      pieces: pieces
+    });
+
+    const return_obj = {
+      squares: squares,
+      pieces: pieces
+    }
+
+    // console.log(`Revive Position ${position}`);
+    // console.log("Piece initial position");
+    // console.log(currentPiece.position_history[0]);
+    // console.log("PiecesAndSquares -> Piece");
+    // console.log(currentPiece);
+    // console.log("PiecesAndSquares -> Square");
+    // console.log(return_obj.squares[position]);
+
+    return return_obj;
   }
 
-  checkKingIsAlive = (player) => {
+  checkKingIsAlive = (player, tempPieces) => {
     const whiteKingID = "King160";
     const blackKingID = "King24";
+
+    let currentTempPieces = null;
+
+    if (tempPieces){
+      currentTempPieces = tempPieces;
+    }
+
     let alive = false;
     if (player === 1){
-      alive = this.getPieceById(whiteKingID).alive;
+      alive = this.getPieceById(whiteKingID, currentTempPieces).alive;
     } else {
-      alive = this.getPieceById(blackKingID).alive;
+      alive = this.getPieceById(blackKingID, currentTempPieces).alive;
     }
     return alive;
   }
@@ -304,6 +353,31 @@ export default class Game extends React.Component {
     this.setState({player: currentPlayer});
   }
 
+  // All live pieces return to their initial position
+  theFloodEffect = () => {
+    let squares = [...this.state.squares];
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    
+    Object.keys(pieces).forEach(colour => {
+      for (let piece of pieces[colour]){
+        // If piece is alive and was moved
+        if (piece.alive && piece.position_history.length > 1){
+          const currentPosition = piece.position_history[piece.position_history.length - 1];
+          const originalPosition = piece.position_history[0];
+          let piecesAndSquares = {pieces:pieces, squares:squares};
+          piecesAndSquares = this.killPieceAt(currentPosition,piecesAndSquares);
+          piecesAndSquares = this.resurrectPiece(originalPosition,null,piecesAndSquares);
+
+          squares = piecesAndSquares.squares;
+          pieces = piecesAndSquares.pieces;
+
+        }
+      }
+    });
+
+    this.setState({squares: squares, pieces: pieces});
+  }
+
   handleClick(i) {
     console.log(`Clicked at ${i}`);
     const squares = [...this.state.squares];
@@ -315,7 +389,9 @@ export default class Game extends React.Component {
     let attacking = false;
     let moving = false;
 
-    gameOver = !this.checkKingIsAlive(currentPlayer);
+    if (!gameOver){
+      gameOver = !this.checkKingIsAlive(currentPlayer);
+    }
 
     if (!gameOver){
        // Selecting new piece
@@ -444,6 +520,7 @@ export default class Game extends React.Component {
         <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
         <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
         <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
+        <button onClick={() => this.theFloodEffect()}>Activate the Flood</button>
         <button onClick={() => this.updateGameState()}>End Turn</button>
         <div className="icons-attribution">
           <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
