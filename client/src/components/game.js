@@ -153,6 +153,31 @@ export default class Game extends React.Component {
     return return_obj;
   }
 
+  createPieceObject = (name,owner,kills) => {
+    let newPiece = null;
+    switch(name){
+      case 'Rook':
+        newPiece = new Rook(owner,kills);
+        break;
+      case 'Pawn':
+        newPiece = new Pawn(owner,kills);
+        break;
+      case 'Bishop':
+        newPiece = new Bishop(owner,kills);
+        break;
+      case 'King':
+        newPiece = new King(owner,kills);
+        break;
+      case 'Queen':
+        newPiece = new Queen(owner,kills);
+        break;
+      case 'Knight':
+        newPiece = new Knight(owner,kills);
+        break;
+    }
+    return newPiece
+  }
+
   // If you give it only a position, it will resurect a piece that used to be there or nothing if incorrect index
   // If you give it a dead piece and a custom position.. it will spawn that piece there instead killing any piece on that spot
   resurrectPiece = (position, piece, piecesAndSquares) => {
@@ -166,26 +191,7 @@ export default class Game extends React.Component {
       currentPiece = this.getPieceByInitialPosition(position, piecesAndSquares.pieces);
     }
 
-    switch(currentPiece.name){
-      case 'Rook':
-        newPiece = new Rook(currentPiece.owner);
-        break;
-      case 'Pawn':
-        newPiece = new Pawn(currentPiece.owner);
-        break;
-      case 'Bishop':
-        newPiece = new Bishop(currentPiece.owner);
-        break;
-      case 'King':
-        newPiece = new King(currentPiece.owner);
-        break;
-      case 'Queen':
-        newPiece = new Queen(currentPiece.owner);
-        break;
-      case 'Knight':
-        newPiece = new Knight(currentPiece.owner);
-        break;
-    }
+    newPiece = this.createPieceObject(currentPiece.name,currentPiece.owner,currentPiece.kills);
 
     let pieces = JSON.parse(JSON.stringify(this.state.pieces));
     let squares = [...this.state.squares];
@@ -357,7 +363,9 @@ export default class Game extends React.Component {
             }
             pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
             console.log(previouslySelectedPiece);
-            squares[i] = squares[sourceSelection];
+            
+            let piece_object = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
+            squares[i] = piece_object;
             squares[i].style = { ...squares[i].style, backgroundColor: "" };
             squares[sourceSelection] = null;
             sourceSelection = -1;
