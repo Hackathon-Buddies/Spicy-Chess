@@ -355,6 +355,11 @@ export default class Game extends React.Component {
     this.setState({player: currentPlayer});
   }
 
+  canPlayerMove = () => {
+    const currentPlayerTurn = this.state.player - 1;
+    return this.props.username === this.state.playerList[currentPlayerTurn];
+  }
+
   // All live pieces return to their initial position
   theFloodEffect = () => {
     let squares = [...this.state.squares];
@@ -399,7 +404,7 @@ export default class Game extends React.Component {
        // Selecting new piece
       if (selectedPiece !== null){
         // If piece belongs to the player in turn
-        if (selectedPiece.owner === currentPlayer){
+        if (this.canPlayerMove() && currentPlayer ===selectedPiece.owner){
           console.log("Valid piece selected...");
           console.log(selectedPiece);
           
@@ -454,7 +459,8 @@ export default class Game extends React.Component {
             squares[sourceSelection] = null;
             sourceSelection = -1;
             this.switchPlayerTurn();
-            // this.updateGameState();
+            
+            setTimeout(() => this.updateGameState(), 1000);
           } else {
             console.log("Invalid move, deselected");
             squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
@@ -478,6 +484,8 @@ export default class Game extends React.Component {
   }
 
   render() {
+
+    console.log("can", this.props.username, "move?", this.canPlayerMove());
 
     const players = this.state.playerList.map((player, index) => {
       if (index === 0){
