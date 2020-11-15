@@ -118,23 +118,6 @@ export default class Game extends React.Component {
     setTimeout(() => this.updateGameState(), time);
   }
 
-  // addPieceNameToSquares = (currentState) => {
-  //   const squares = [...currentState.squares];
-
-  //   for (let i = 0; i < squares.length; i++){
-  //     // console.log(squares[i]);
-  //     if (squares[i] !== null){
-  //       // console.log(squares[i].constructor.name);
-  //       if (squares[i].piece_name){
-  //         squares[i]["piece_name"] = squares[i].constructor.name;
-  //       }
-  //     }
-  //   }
-
-  //   currentState.squares = squares;
-  //   return currentState;
-  // };
-
   updateGameState = () => {
     let currentState = this.state;
     // currentState = this.addPieceNameToSquares(currentState);
@@ -142,17 +125,6 @@ export default class Game extends React.Component {
     console.log(currentState);
     this.socket.emit(GAME_STATE_EVENT,currentState);
   };
-
-  createKnightsTest = (index) => {
-    const squares = [...this.state.squares];
-
-    squares[index] = new Knight(2);
-    for (let i=index+1; i < index+5; i++){
-      squares[i] = new Knight(1);
-    }
-    this.setState({squares : squares});
-  }
-
 
   getPieceByInitialPosition = (initialPosition, tempPieces) => {
     let pieces = JSON.parse(JSON.stringify(this.state.pieces));
@@ -215,15 +187,21 @@ export default class Game extends React.Component {
 
     const piece = this.getPiece(position);
     if (piece !== null){
-      piece.alive = false;
-      squares[position] = null;
-      pieces = this.updatePiecesObject(pieces,piece);
+      if (piece.name !== null){
+        piece.alive = false;
+        squares[position] = null;
+        pieces = this.updatePiecesObject(pieces,piece);
+      } else {
+        console.log("You almost committed suicide !!!");
+      }
     }
+    this.update_server(2000);
+
     this.setState({
       squares: squares,
       pieces: pieces
     });
-
+    
     const return_obj = {
       squares: squares,
       pieces: pieces
@@ -270,7 +248,9 @@ export default class Game extends React.Component {
       currentPiece = this.getPieceByInitialPosition(position, piecesAndSquares.pieces);
     }
 
-    newPiece = this.createPieceObject(currentPiece.name,currentPiece.owner,currentPiece.kills);
+    if (currentPiece !== null){
+      newPiece = this.createPieceObject(currentPiece.name,currentPiece.owner,currentPiece.kills);
+    }
 
     let pieces = JSON.parse(JSON.stringify(this.state.pieces));
     let squares = [...this.state.squares];
@@ -288,15 +268,16 @@ export default class Game extends React.Component {
         pieces = this.updatePiecesObject(pieces, occupyingPiece);
       }
       squares[position] = newPiece;
-      squares[position].piece_name = newPiece.constructor.name;
+      if (newPiece){
+        squares[position].piece_name = newPiece.constructor.name;
+      }
       currentPiece.alive = true;
       currentPiece.position_history = [position];
       pieces = this.updatePiecesObject(pieces, currentPiece);
     }
-    this.setState({
-      squares: squares,
-      pieces: pieces
-    });
+
+    this.update_server(2000);
+    this.setState({squares: squares, pieces: pieces});
 
     const return_obj = {
       squares: squares,
@@ -364,107 +345,205 @@ export default class Game extends React.Component {
           let piecesAndSquares = {pieces:pieces, squares:squares};
           piecesAndSquares = this.killPieceAt(currentPosition,piecesAndSquares);
           piecesAndSquares = this.resurrectPiece(originalPosition,null,piecesAndSquares);
-
+            
           squares = piecesAndSquares.squares;
           pieces = piecesAndSquares.pieces;
 
         }
       }
     });
-    this.update_server(1000);
+    this.update_server(2000);
     this.setState({squares: squares, pieces: pieces});
   };
 
-  handleClick = (i) => {
-    console.log(`Clicked at ${i}`);
-    const squares = [...this.state.squares];
-    const currentPlayer = this.state.player;
+  thePlagueEffect = (mortality) => {
+    let squares = [...this.state.squares];
     let pieces = JSON.parse(JSON.stringify(this.state.pieces));
-    let gameOver = this.state.gameOver;
-    let selectedPiece = this.getPiece(i);
-    let sourceSelection = this.state.sourceSelection;
-    let attacking = false;
-    let moving = false;
 
-    if (!gameOver){
-      gameOver = !this.checkKingIsAlive(currentPlayer);
+    let squaresAndPieces = {
+      squares: squares,
+      pieces: pieces
     }
 
-    if (!gameOver){
-       // Selecting new piece that isn't dead or non existant
-      if (selectedPiece !== null){
-        // If piece belongs to the player in turn and is still alive
-        if (this.canPlayerMove() && currentPlayer === selectedPiece.owner){
-          console.log("Valid piece selected...");
-          console.log(selectedPiece);
-          
-          // If a piece was previously selected, de-select it...
-          if (sourceSelection !== -1){
-            squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
+    for (let i = 0; i < squares.length; i++){
+      const probability = Math.random()
+      if (probability < mortality){
+        const piece = this.getPiece(i);
+        if (piece){
+          if (piece.name !== "King"){
+            squaresAndPieces = this.killPieceAt(i, squaresAndPieces);
           }
-          sourceSelection = i; 
-          squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" }; // Emerald from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html
-        } 
-        // If piece belongs to enemy
-        else {
-          if (sourceSelection !== -1){
-            attacking = true;
-          } else {
-            console.log("Click on your own damn pieces...");
-          }
-        }
-      } else {
-        if (sourceSelection !== -1){
-          moving = true;
-        } else {
-          console.log("Empty space clicked with no selection made...");
         }
       }
+    }
+    this.update_server(2000);
+    this.setState({squares: squares, pieces: pieces});
+    return squaresAndPieces;
+  }
+
+  // Give up to 1.. 1 is 0 and 0 is 100% chance
+  chance_event = (chance, func, index) => {
+    console.log(`Event triggered..${func} with a ${chance} of actually going through`);
+    const probability = Math.random();
+    let squares = [...this.state.squares];
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let squaresAndPieces = {
+      squares: squares,
+      pieces: pieces,
+      triggered: false,
+    };
+
+    if (probability < chance){
+      console.log("EVENT TRIGGERED SUCCESSFULLY");
+      switch (func) {
+        case 'flood':
+          this.theFloodEffect();
+          squaresAndPieces.triggered = true;
+          console.log("Flood in effect.. everyone run!");
+          break;
+        case 'killPiece':
+          squaresAndPieces = this.killPieceAt(index);
+          squaresAndPieces.triggered = true;
+          console.log("Killed successfully");
+          break;
+        case 'revivePiece':
+          squaresAndPieces = this.resurrectPiece(index);
+          squaresAndPieces.triggered = true;
+          console.log("Revived successfully");
+          break;
+        case 'plague':
+          const mortality = 0.2;
+          squaresAndPieces = this.thePlagueEffect(mortality)
+          squaresAndPieces.triggered = true;
+          console.log(`The plague hit with a mortality of ${mortality}`);
+      }
+    }
+    return squaresAndPieces;
+  }
+
+  random_event = (index) => {
+    const squares = [...this.state.squares];
+    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    let squaresAndPieces = {
+      squares: squares,
+      pieces: pieces,
+      triggered: false
+    }
+    if (this.getPiece(index) || this.getPieceByInitialPosition(index)){
+      const probability = Math.random();
+      const chance = Math.random();
+      const events = ["flood", "killPiece", "revivePiece", "plague"];
+      const eventIndex = Math.floor(Math.random() * 4);
+      console.log("Probability has to be smaller than chance");
+      console.log(`Chance .. ${chance}`);
+      console.log(`Probability ..${probability}`);
+      if (probability < chance){
+        squaresAndPieces = this.chance_event(probability,events[eventIndex],index);
+      }
+    }
+    return squaresAndPieces;
+  }
+
+  handleClick = (i) => {
+    console.log(`Clicked at ${i}`);
+    const random_event = this.random_event(i);
+    if (!random_event.triggered){
+      const currentPlayer = this.state.player;
+      let squares = random_event.squares;
+      let pieces = random_event.pieces;
+      let gameOver = this.state.gameOver;
+      let selectedPiece = this.getPiece(i);
+      let sourceSelection = this.state.sourceSelection;
+      let attacking = false;
+      let moving = false;
   
-      if (moving || attacking){
-        let previouslySelectedPiece = this.getPiece(sourceSelection);
-        squares[sourceSelection] = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
-        if (squares[sourceSelection]){
-          const isMovePossible = squares[sourceSelection].isMovePossible(sourceSelection, i, Boolean(squares[i]));
-          if (isMovePossible){
-            console.log("A piece was properly selected.. so moving..");
-            previouslySelectedPiece.position_history.push(i);
-            if (attacking){
-              if (selectedPiece.name === 'King'){
-                gameOver = true;
-              }
-              selectedPiece.alive = false;
-              pieces = this.updatePiecesObject(pieces, selectedPiece);
-              previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
+      let previouslySelectedPiece = this.getPiece(sourceSelection);
+  
+      if (!gameOver){
+        gameOver = !this.checkKingIsAlive(currentPlayer);
+      }
+  
+      if (!gameOver){
+         // Selecting new piece that isn't dead or non existant
+        if (selectedPiece !== null){
+          // If piece belongs to the player in turn and is still alive
+          if (this.canPlayerMove() && currentPlayer === selectedPiece.owner){
+            console.log("Valid piece selected...");
+            console.log(selectedPiece);
+            
+            // If a piece was previously selected, de-select it...
+            if (sourceSelection !== -1 && squares[sourceSelection]){
+              squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
             }
-            pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
-            console.log(previouslySelectedPiece);
-            let piece_object = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
-            squares[i] = piece_object;
-            squares[i].style = { ...squares[i].style, backgroundColor: "" };
-            squares[sourceSelection] = null;
-            sourceSelection = -1;
-            this.switchPlayerTurn();
-            this.update_server(1000);
-          } else {
-            console.log("Invalid move, deselected");
-            squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
-            sourceSelection = -1;
+            
+            sourceSelection = i; 
+            if (squares[i]){
+              squares[i].style = { ...squares[i].style, backgroundColor: "RGB(111,143,114)" };
+            }
+          } 
+          // If piece belongs to enemy
+          else {
+            if (sourceSelection !== -1){
+              attacking = true;
+            } else {
+              console.log("Click on your own damn pieces... unless...");
+  
+            }
           }
         } else {
-          console.log("SOMETHING GOT BROKEN");
+          if (sourceSelection !== -1){
+            moving = true;
+          } else {
+            console.log("Empty space clicked with no selection made...");
+          }
         }
         
+        if (previouslySelectedPiece){
+          if (moving || attacking){
+            squares[sourceSelection] = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
+            if (squares[sourceSelection]){
+              const isMovePossible = squares[sourceSelection].isMovePossible(sourceSelection, i, Boolean(squares[i]));
+              if (isMovePossible){
+                console.log("A piece was properly selected.. so moving..");
+                previouslySelectedPiece.position_history.push(i);
+                if (attacking){
+                  if (selectedPiece.name === 'King'){
+                    gameOver = true;
+                  }
+                  selectedPiece.alive = false;
+                  pieces = this.updatePiecesObject(pieces, selectedPiece);
+                  previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
+                }
+                pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
+                console.log(previouslySelectedPiece);
+                let piece_object = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
+                squares[i] = piece_object;
+                squares[i].style = { ...squares[i].style, backgroundColor: "" };
+                squares[sourceSelection] = null;
+                sourceSelection = -1;
+                this.switchPlayerTurn();
+                this.update_server(1000);
+              } else {
+                console.log("Invalid move, deselected");
+                squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
+                sourceSelection = -1;
+              }
+            } else {
+              console.log("SOMETHING GOT BROKEN");
+            }
+            
+            }
         }
-      this.setState({
-        squares: squares,
-        sourceSelection: sourceSelection,
-        pieces: pieces,
-        gameOver: gameOver
-      })
-    }
-    else {
-      console.log("Game over.. stop clicking now...");
+        this.setState({
+          squares: squares,
+          sourceSelection: sourceSelection,
+          pieces: pieces,
+          gameOver: gameOver
+        });
+      }
+      else {
+        console.log("Game over.. stop clicking now...");
+      }
     }
   }
 
@@ -511,9 +590,6 @@ export default class Game extends React.Component {
           </div>
         </div>
         {/* Test buttons */}
-        <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
-        <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
-        <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
         <button onClick={() => this.theFloodEffect()}>Activate the Flood</button>
         <button onClick={() => this.updateGameState()}>End Turn</button>
         <div className="icons-attribution">
