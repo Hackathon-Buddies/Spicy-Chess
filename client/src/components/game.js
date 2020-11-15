@@ -404,7 +404,7 @@ export default class Game extends React.Component {
        // Selecting new piece
       if (selectedPiece !== null){
         // If piece belongs to the player in turn
-        if (this.canPlayerMove()){
+        if (this.canPlayerMove() && currentPlayer ===selectedPiece.owner){
           console.log("Valid piece selected...");
           console.log(selectedPiece);
           
