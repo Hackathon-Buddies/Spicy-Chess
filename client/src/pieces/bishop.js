@@ -1,7 +1,6 @@
 import Piece from './piece.js';
 import { isSameDiagonal, isPathClean } from '../helpers'
 
-
 const white_kill0 = "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg";
 const white_kill1 = "https://www.imgurupload.com/uploads/20201115/1f14874dc1c2d6ab35ff3177579c5da9f2f91423.png";
 const white_kill2 = "https://www.imgurupload.com/uploads/20201115/d071735b8456e293267d0b91bee160918426f8d3.png";
