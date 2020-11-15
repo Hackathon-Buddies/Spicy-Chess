@@ -27,6 +27,12 @@ ol, ul {
   display: inline-block;   
 }
 
+.game-board{
+  display: inline-block;
+  background-color: aliceblue;
+  padding: 2px;
+}
+
 .game-container {
 
 }
@@ -44,7 +50,7 @@ ol, ul {
   float: right;
   width: 250px;
   max-width: 25%;
-  border: #000 solid 1px;
+  border: rgb(119, 119, 119) solid 1px;
   margin-right: 1%;
   margin-top: 10%;
 }
@@ -59,6 +65,25 @@ ol, ul {
 
 .players-header{
   margin-bottom: 5px;
+}
+
+
+.event-container {
+  /* background-color: aqua; */
+  text-align: center;
+
+}
+
+.event-title {
+  text-align: center;
+  font-size: large;
+  color: #f74134;
+
+}
+
+.event-gif {
+  max-width: 60%;
+  max-height: 10%;
 }
 
 .square {
@@ -98,11 +123,11 @@ ol, ul {
 
 /*Board color scheme Wheat from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html*/
 .dark-square{
-background-color: RGB(187,190,100);
+background-color: #383838;
 }
 
 .light-square{
-    background-color: RGB(234,240,206);
+    background-color: #5de8f0;
 }
 
 #player-turn-box{
