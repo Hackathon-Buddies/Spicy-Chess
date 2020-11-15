@@ -474,17 +474,17 @@ export default class Game extends React.Component {
 
     const players = this.state.playerList.map((player, index) => {
       if (index === 0){
-      return <p><span>♖</span> {player}</p>
+      return <p className="player-name-elements"><span>♜</span> {player}</p>
       } else if (index === 1) {
-        return <p><span>♜</span> {player}</p>
+        return <p className="player-name-elements"><span>♖</span> {player}</p>
       } else {
-        return <p>{player}</p>
+        return <p className="player-name-elements">{player}</p>
       }
     })
 
     return (
-      <div>
-        {players}
+      <>
+      <div className="game-container">
         <div className="game">
           <div className="game-board">
             <Board
@@ -510,20 +510,25 @@ export default class Game extends React.Component {
 
           </div>
         </div>
-        {/* Test buttons */}
+
+        <div className="players-container">
+          <h3 className="players-header">Players in room</h3>
+          {players}
+        </div>
+      </div>
+
+      <div className="test-control-panel">
+          test control panel
+
+                  {/* Test buttons */}
         <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
         <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
         <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
         <button onClick={() => this.theFloodEffect()}>Activate the Flood</button>
         <button onClick={() => this.updateGameState()}>End Turn</button>
-        <div className="icons-attribution">
-          <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
+
         </div>
-        <ul>
-          <li><a href="https://github.com/TalhaAwan/react-chess" target="_blank">Source Code</a> </li>
-          <li><a href="https://www.techighness.com/post/develop-two-player-chess-game-with-react-js/">Blog Post</a></li>
-        </ul>
-      </div>
+      </>
     );
   }
 }
