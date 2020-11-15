@@ -36,7 +36,9 @@ const ChatRoom = (props) => {
   return (
     <div className="chat-room-container">
       <h1 className="room-name">Room: {roomId}</h1>
-      <p>Username: {username}</p>
+
+      <h2 className="combinedDiv">Username: {username}</h2>
+      
       <div id="scroll-To-Top" className="messages-container">
         <ol className="messages-list">
           {messages.map((message, i) => (
@@ -51,15 +53,17 @@ const ChatRoom = (props) => {
           ))}
         </ol>
       </div>
+      <div className="combinedDiv">
       <textarea
         value={newMessage}
         onChange={handleNewMessageChange}
         placeholder="Write message..."
         className="new-message-input-field"
       />
-      <button onClick={handleSendMessage} className="send-message-button">
-        Send
+         <button onClick={handleSendMessage} className="send-message-button">
+            Send
         </button>
+      </div>
     </div>
   );
 };
