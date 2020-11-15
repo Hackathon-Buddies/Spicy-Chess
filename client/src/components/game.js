@@ -354,6 +354,11 @@ export default class Game extends React.Component {
     this.setState({player: currentPlayer});
   }
 
+  canPlayerMove = () => {
+    const currentPlayerTurn = this.state.player - 1;
+    return this.props.username === this.state.playerList[currentPlayerTurn];
+  }
+
   // All live pieces return to their initial position
   theFloodEffect = () => {
     let squares = [...this.state.squares];
@@ -479,6 +484,8 @@ export default class Game extends React.Component {
   }
 
   render() {
+
+    console.log("can", this.props.username, "move?", this.canPlayerMove());
 
     const players = this.state.playerList.map((player, index) => {
       if (index === 0){
