@@ -49,7 +49,7 @@ export default class Game extends React.Component {
     for (let i = 0; i < squares.length; i++){
       const square = squares[i];
       if (square !== null){
-        const piece_name = square.constructor.name;
+        const piece_name = square.piece_name;
         const piece_owner = square.player;
         const piece_style = square.style;
   
@@ -118,26 +118,26 @@ export default class Game extends React.Component {
     setTimeout(() => this.updateGameState(), time);
   }
 
-  addPieceNameToSquares = (currentState) => {
-    const squares = [...currentState.squares];
+  // addPieceNameToSquares = (currentState) => {
+  //   const squares = [...currentState.squares];
 
-    for (let i = 0; i < squares.length; i++){
-      // console.log(squares[i]);
-      if (squares[i] !== null){
-        // console.log(squares[i].constructor.name);
-        if (squares[i].constructor){
-          squares[i]["piece_name"] = squares[i].constructor.name;
-        }
-      }
-    }
+  //   for (let i = 0; i < squares.length; i++){
+  //     // console.log(squares[i]);
+  //     if (squares[i] !== null){
+  //       // console.log(squares[i].constructor.name);
+  //       if (squares[i].piece_name){
+  //         squares[i]["piece_name"] = squares[i].constructor.name;
+  //       }
+  //     }
+  //   }
 
-    currentState.squares = squares;
-    return currentState;
-  };
+  //   currentState.squares = squares;
+  //   return currentState;
+  // };
 
   updateGameState = () => {
     let currentState = this.state;
-    currentState = this.addPieceNameToSquares(currentState);
+    // currentState = this.addPieceNameToSquares(currentState);
     console.log("SENDING TO SERVER THIS");
     console.log(currentState);
     this.socket.emit(GAME_STATE_EVENT,currentState);
