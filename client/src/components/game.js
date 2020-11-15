@@ -138,7 +138,7 @@ export default class Game extends React.Component {
         break;
       
       case "plague":
-        gifUri.gif = "https://im6.ezgif.com/tmp/ezgif-6-b244014eab80.gif"
+        gifUri.gif = "https://media.giphy.com/media/djxrrxDSvEMen01uS5/giphy.gif"
         gifUri.text = "A deadly plague spreads through the battlefield"
         break;
     }
@@ -431,22 +431,26 @@ export default class Game extends React.Component {
         case 'flood':
           this.theFloodEffect();
           squaresAndPieces.triggered = true;
+          this.setEventGif("flood");
           console.log("Flood in effect.. everyone run!");
           break;
         case 'killPiece':
           squaresAndPieces = this.killPieceAt(index);
           squaresAndPieces.triggered = true;
+          this.setEventGif("killing");
           console.log("Killed successfully");
           break;
         case 'revivePiece':
           squaresAndPieces = this.resurrectPiece(index);
           squaresAndPieces.triggered = true;
+          this.setEventGif("resurrection");
           console.log("Revived successfully");
           break;
         case 'plague':
-          const mortality = 0.2;
+          const mortality = 0.3;
           squaresAndPieces = this.thePlagueEffect(mortality)
           squaresAndPieces.triggered = true;
+          this.setEventGif("plague");
           console.log(`The plague hit with a mortality of ${mortality}`);
       }
     }
@@ -540,6 +544,7 @@ export default class Game extends React.Component {
                 previouslySelectedPiece.position_history.push(i);
                 if (attacking){
                   if (selectedPiece.name === 'King'){
+                    this.setEventGif("victory");
                     gameOver = true;
                   }
                   selectedPiece.alive = false;
@@ -628,20 +633,6 @@ export default class Game extends React.Component {
           {players}
         </div>
       </div>
-
-      <div className="test-control-panel">
-          test control panel
-
-                  {/* Test buttons */}
-        <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
-        <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
-        <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
-        <button onClick={() => this.theFloodEffect()}>Activate the Flood</button>
-        <button onClick={() => this.updateGameState()}>End Turn</button>
-        <button onClick={() => this.setEventGif("plague")}> plague </button>
-
-        </div>
-
         <div className="event-container">
             <h1 className="event-title">{this.state.lastEventGif.text}</h1>
             <img src={this.state.lastEventGif.gif} alt="" className="event-gif" />
