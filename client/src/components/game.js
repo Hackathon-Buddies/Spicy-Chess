@@ -93,8 +93,11 @@ export default class Game extends React.Component {
     return selectedPiece;
   }
 
-  getPieceById = (id) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+  getPieceById = (id, tempPieces) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    if (tempPieces){
+      pieces = tempPieces;
+    }
     let selectedPiece = null;
     Object.keys(pieces).forEach(colour => {
       for (const piece of pieces[colour]){
@@ -107,8 +110,11 @@ export default class Game extends React.Component {
     return selectedPiece;
   }
 
-  getPiece = (position) => {
-    const pieces = JSON.parse(JSON.stringify(this.state.pieces));
+  getPiece = (position,tempPieces) => {
+    let pieces = JSON.parse(JSON.stringify(this.state.pieces));
+    if (tempPieces){
+      pieces = tempPieces;
+    }
     let selectedPiece = null;
     Object.keys(pieces).forEach(colour => {
       for (const piece of pieces[colour]){
@@ -192,11 +198,12 @@ export default class Game extends React.Component {
     if (currentPiece !== null && currentPiece.alive !== true){
       let occupyingPiece = null;
       if (squares[position] !== null){
-        occupyingPiece = this.getPiece(position);
-        occupyingPiece.alive = false;
+        occupyingPiece = this.getPiece(position, pieces);
+        piecesAndSquares = this.resurrectPiece(occupyingPiece.position_history[0], occupyingPiece, piecesAndSquares);
         pieces = this.updatePiecesObject(pieces, occupyingPiece);
       }
       squares[position] = newPiece;
+      squares[position].piece_name = newPiece.constructor.name;
       currentPiece.alive = true;
       currentPiece.position_history = [position];
       pieces = this.updatePiecesObject(pieces, currentPiece);
@@ -210,17 +217,33 @@ export default class Game extends React.Component {
       squares: squares,
       pieces: pieces
     }
+
+    // console.log(`Revive Position ${position}`);
+    // console.log("Piece initial position");
+    // console.log(currentPiece.position_history[0]);
+    // console.log("PiecesAndSquares -> Piece");
+    // console.log(currentPiece);
+    // console.log("PiecesAndSquares -> Square");
+    // console.log(return_obj.squares[position]);
+
     return return_obj;
   }
 
-  checkKingIsAlive = (player) => {
+  checkKingIsAlive = (player, tempPieces) => {
     const whiteKingID = "King160";
     const blackKingID = "King24";
+
+    let currentTempPieces = null;
+
+    if (tempPieces){
+      currentTempPieces = tempPieces;
+    }
+
     let alive = false;
     if (player === 1){
-      alive = this.getPieceById(whiteKingID).alive;
+      alive = this.getPieceById(whiteKingID, currentTempPieces).alive;
     } else {
-      alive = this.getPieceById(blackKingID).alive;
+      alive = this.getPieceById(blackKingID, currentTempPieces).alive;
     }
     return alive;
   }
@@ -267,6 +290,7 @@ export default class Game extends React.Component {
         }
       }
     });
+
     this.setState({squares: squares, pieces: pieces});
   }
 
@@ -281,7 +305,9 @@ export default class Game extends React.Component {
     let attacking = false;
     let moving = false;
 
-    gameOver = !this.checkKingIsAlive(currentPlayer);
+    if (!gameOver){
+      gameOver = !this.checkKingIsAlive(currentPlayer);
+    }
 
     if (!gameOver){
        // Selecting new piece
