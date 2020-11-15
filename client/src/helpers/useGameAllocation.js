@@ -2,8 +2,7 @@ import socketIOClient from "socket.io-client";
 import ENDPOINT from "./server-end-point";
 
 const ALLOCATION_EVENT = "role"; // Name of the event
-// const SOCKET_SERVER_URL = ENDPOINT;
-const SOCKET_SERVER_URL = "localhost:5000";
+const SOCKET_SERVER_URL = ENDPOINT;
 
 const useGameAllocation = (roomId) => {
     console.log("allocation called.")

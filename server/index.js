@@ -3,35 +3,39 @@ const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 const port = process.env.PORT || 5000;
-
+var userList = [];
 
 io.on("connection", socket => {
 
     console.log("A user has connected!");
 
     // join room
-    const { roomId } = socket.handshake.query;
+    const { roomId, username } = socket.handshake.query;
+
+    const user = {
+        roomId: roomId,
+        username: username
+    };
+
+    console.log("user ->", user.roomId, user.username);
 
     socket.join(roomId);
-    console.log("joined room: ",roomId);
+    console.log("joined room: ",roomId, "with username: ", username);
+    userList.push(user);
 
-    // rooms returns a Set !
-    var rooms = io.sockets.adapter.rooms;
-    var roomMembers = rooms.get(roomId);
-    var roomSize = roomMembers.size;
+    console.log("users in room:",roomId," are:",userList);
 
-    if(roomMembers && roomSize >= 2) {
-        console.log("all players", roomMembers)
-        var memberItr = roomMembers.keys()
+    var playersInRoom = [];
+    for (i = 0; i < userList.length; i++) {
+        if(userList[i].username !== undefined && userList[i].username !== '' && userList[i].username !== "undefined"){
+                playersInRoom.push(userList[i]);
 
-        var player1Id = memberItr.next().value;
-        var player2Id = memberItr.next().value;
-
-        socket.broadcast.to(player1Id).emit('role','player1');
-        console.log(player1Id,"is now white in room:", roomId);
-        socket.broadcast.to(player2Id).emit('role','player2');
-        console.log(player2Id,"is now black in room:", roomId);
+        }
     }
+    
+    io.in(roomId).emit("playerList", playersInRoom);
+    console.log("actual players: ",playersInRoom);
+
     
 
     // Listen for message
@@ -43,22 +47,6 @@ io.on("connection", socket => {
 
 
     // Listen for game state changes
-
-    // let gameStateData = {
-    //     squares: initialiseChessBoard(),
-    //     whiteFallenSoldiers: [],
-    //     blackFallenSoldiers: [],
-    //     player: 1,
-    //     sourceSelection: -1,
-    //     status: '',
-    //     turn: 'white',
-    //     pieces: {
-    //       white : [],
-    //       black: []
-    //     },
-    //     gameOver: false,
-    //     playerRole: useGameAllocation(props.room)
-    // }
 
     socket.on("gameState", (data) => {
         io.in(roomId).emit("gameState", data);

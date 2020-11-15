@@ -10,13 +10,12 @@ import King from '../pieces/king';
 import Pawn from '../pieces/pawn';
 import Bishop from '../pieces/bishop';
 import Rook from '../pieces/rook';
-import useGameAllocation from '../helpers/useGameAllocation';
 import socketIOClient from "socket.io-client";
 import ENDPOINT from "../helpers/server-end-point";
 import $ from 'jquery';
 const GAME_STATE_EVENT = "gameState"; // Name of the event
-// const SOCKET_SERVER_URL = ENDPOINT;
-const SOCKET_SERVER_URL = "localhost:5000";
+const PLAYER_LIST_EVENT = "playerList";
+const SOCKET_SERVER_URL = ENDPOINT;
 
 
 export default class Game extends React.Component {
@@ -35,7 +34,8 @@ export default class Game extends React.Component {
         black: []
       },
       gameOver: false,
-      playerRole: useGameAllocation(props.room)
+      playerList : []
+
     }
   }
 
@@ -75,6 +75,7 @@ export default class Game extends React.Component {
 
 
     const roomId = this.props.room;
+    const username = this.props.username;
     this.socket = socketIOClient(SOCKET_SERVER_URL, {
       forceNew: true,
       reconnectionDelay: 1000,
@@ -84,10 +85,20 @@ export default class Game extends React.Component {
       agent: false,
       upgrade: false,
       rejectUnauthorized: false,
-      query: { roomId}
+      query: { roomId, username}
   });
 
  
+  this.socket.on(PLAYER_LIST_EVENT, (playerList) => {
+    console.log(playerList)
+    let users = [];
+    for (let player of playerList) {
+      if (player.roomId === roomId) {
+        users = [...users,player.username]
+      }
+    }
+    this.setState({playerList : users});
+  });
 
 
   this.socket.on(GAME_STATE_EVENT, (gameState) => {
@@ -391,11 +402,19 @@ export default class Game extends React.Component {
 
   render() {
 
+    const players = this.state.playerList.map((player, index) => {
+      if (index === 0){
+      return <p><span>♖</span> {player}</p>
+      } else if (index === 1) {
+        return <p><span>♜</span> {player}</p>
+      } else {
+        return <p>{player}</p>
+      }
+    })
+
     return (
       <div>
-        <p>
-          My role is: {this.state.playerRole}
-        </p>
+        {players}
         <div className="game">
           <div className="game-board">
             <Board

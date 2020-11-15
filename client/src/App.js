@@ -17,7 +17,7 @@ function App() {
     };
 
     const handleRoomJoin = () => {
-        if (initialRoom) {
+        if (initialRoom && username) {
             setRoom(initialRoom);
             setShowGameScreen(true);
         }
@@ -31,9 +31,9 @@ function App() {
 
     const gameContent = (<div className="outer-container">
         <div className="join-wrapper">
-            <Game room={room} />
+            <Game room={room} username={username}/>
         </div>
-        <ChatRoom room={room} />
+        <ChatRoom room={room} username={username} />
 
     </div>);
 
@@ -68,7 +68,7 @@ function App() {
                     <button onClick={() => handleRoomJoin()}>Join Room</button>
                 </div>
             </div>
-            <ChatRoom room={room} />
+            <ChatRoom room={room} username={username} />
 
         </div>);
     return (

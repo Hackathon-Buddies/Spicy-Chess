@@ -3,11 +3,10 @@ import socketIOClient from "socket.io-client";
 import ENDPOINT from "./server-end-point";
 
 const NEW_CHAT_MESSAGE_EVENT = "chat"; // Name of the event
-// const SOCKET_SERVER_URL = ENDPOINT;
-const SOCKET_SERVER_URL = "localhost:5000";
+const SOCKET_SERVER_URL = ENDPOINT;
 
 
-const useChat = (roomId) => {
+const useChat = (roomId, username) => {
     const [messages, setMessages] = useState([]); // Sent and received messages
     const socketRef = useRef();
 
@@ -23,7 +22,7 @@ const useChat = (roomId) => {
             agent: false,
             upgrade: false,
             rejectUnauthorized: false,
-            query: { roomId }
+            query: { roomId, username }
         });
 
         // Listens for incoming messages
