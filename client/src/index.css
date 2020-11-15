@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Goldman&family=Press+Start+2P&display=swap');
+
 body {
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;
@@ -73,6 +75,14 @@ h3{
   margin-bottom: 5px;
 }
 
-#chat-Room-Area{
-  overflow-y:scroll;
+p{
+
+  font-family: "Press Start 2P";
+
+}
+
+span{
+
+  height:150px;
+  width: 150px;
 }
