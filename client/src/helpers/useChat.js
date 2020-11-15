@@ -4,10 +4,9 @@ import ENDPOINT from "./server-end-point";
 
 const NEW_CHAT_MESSAGE_EVENT = "chat"; // Name of the event
 const SOCKET_SERVER_URL = ENDPOINT;
-// const SOCKET_SERVER_URL = "localhost:5000";
 
 
-const useChat = (roomId) => {
+const useChat = (roomId, username) => {
     const [messages, setMessages] = useState([]); // Sent and received messages
     const socketRef = useRef();
 
@@ -23,10 +22,9 @@ const useChat = (roomId) => {
             agent: false,
             upgrade: false,
             rejectUnauthorized: false,
-            query: { roomId }
+            query: { roomId, username }
         });
 
-        console.log('socket', socketRef);
         // Listens for incoming messages
         socketRef.current.on(NEW_CHAT_MESSAGE_EVENT, (message) => {
             const incomingMessage = {
@@ -51,7 +49,6 @@ const useChat = (roomId) => {
                 body: messageBody,
                 senderId: socketRef.current.id,
             });
-            console.log('message sent ', messageBody);
         } catch (err) {
             alert(err);
         }
@@ -60,7 +57,6 @@ const useChat = (roomId) => {
     };
 
 
-    console.log("message being sent/recieved");
     return { messages, sendMessage };
 };
 

@@ -10,9 +10,16 @@ import King from '../pieces/king';
 import Pawn from '../pieces/pawn';
 import Bishop from '../pieces/bishop';
 import Rook from '../pieces/rook';
+import socketIOClient from "socket.io-client";
+import ENDPOINT from "../helpers/server-end-point";
+import $ from 'jquery';
+const GAME_STATE_EVENT = "gameState"; // Name of the event
+const PLAYER_LIST_EVENT = "playerList";
+const SOCKET_SERVER_URL = ENDPOINT;
+
 
 export default class Game extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
       squares: initialiseChessBoard(),
@@ -26,7 +33,9 @@ export default class Game extends React.Component {
         white : [],
         black: []
       },
-      gameOver: false
+      gameOver: false,
+      playerList : []
+
     }
   }
 
@@ -63,6 +72,76 @@ export default class Game extends React.Component {
       }
     }
     this.setState({pieces: pieces});
+
+
+    const roomId = this.props.room;
+    const username = this.props.username;
+    this.socket = socketIOClient(SOCKET_SERVER_URL, {
+      forceNew: true,
+      reconnectionDelay: 1000,
+      reconnection: true,
+      reconnectionAttempts: 10,
+      transports: ['websocket'],
+      agent: false,
+      upgrade: false,
+      rejectUnauthorized: false,
+      query: { roomId, username}
+  });
+
+ 
+  this.socket.on(PLAYER_LIST_EVENT, (playerList) => {
+    console.log(playerList)
+    let users = [];
+    for (let player of playerList) {
+      if (player.roomId === roomId) {
+        users = [...users,player.username]
+      }
+    }
+    this.setState({playerList : users});
+  });
+
+
+  this.socket.on(GAME_STATE_EVENT, (gameState) => {
+    console.log("RECEIVING THIS FROM SERVER");
+    console.log(gameState);
+   
+    if (gameState) {
+      this.setState(gameState);
+      console.log("game state updated")
+    } else {
+      console.log("gamestate was empty");
+    }
+  });
+
+
+  }
+
+  addPieceNameToSquares = (currentState) => {
+    const squares = [...currentState.squares];
+
+    for (let i = 0; i < squares.length; i++){
+      console.log(squares[i]);
+      
+      if (squares[i] !== null){
+        console.log(squares[i].constructor.name);
+        squares[i]["piece_name"] = squares[i].constructor.name;
+      }
+    }
+
+    currentState.squares = squares;
+    return currentState;
+  }
+
+  updateGameState() {
+    let currentState = this.state;
+
+    if(!this.state.squares[0].piece_name){
+      currentState = this.addPieceNameToSquares(currentState);
+    }
+
+    console.log("SENDING TO SERVER THIS");
+    console.log(currentState);
+    this.socket.emit(GAME_STATE_EVENT,currentState);
   }
 
   createKnightsTest(index) {
@@ -153,6 +232,31 @@ export default class Game extends React.Component {
     return return_obj;
   }
 
+  createPieceObject = (name,owner,kills) => {
+    let newPiece = null;
+    switch(name){
+      case 'Rook':
+        newPiece = new Rook(owner,kills);
+        break;
+      case 'Pawn':
+        newPiece = new Pawn(owner,kills);
+        break;
+      case 'Bishop':
+        newPiece = new Bishop(owner,kills);
+        break;
+      case 'King':
+        newPiece = new King(owner,kills);
+        break;
+      case 'Queen':
+        newPiece = new Queen(owner,kills);
+        break;
+      case 'Knight':
+        newPiece = new Knight(owner,kills);
+        break;
+    }
+    return newPiece
+  }
+
   // If you give it only a position, it will resurect a piece that used to be there or nothing if incorrect index
   // If you give it a dead piece and a custom position.. it will spawn that piece there instead killing any piece on that spot
   resurrectPiece = (position, piece, piecesAndSquares) => {
@@ -166,26 +270,7 @@ export default class Game extends React.Component {
       currentPiece = this.getPieceByInitialPosition(position, piecesAndSquares.pieces);
     }
 
-    switch(currentPiece.name){
-      case 'Rook':
-        newPiece = new Rook(currentPiece.owner);
-        break;
-      case 'Pawn':
-        newPiece = new Pawn(currentPiece.owner);
-        break;
-      case 'Bishop':
-        newPiece = new Bishop(currentPiece.owner);
-        break;
-      case 'King':
-        newPiece = new King(currentPiece.owner);
-        break;
-      case 'Queen':
-        newPiece = new Queen(currentPiece.owner);
-        break;
-      case 'Knight':
-        newPiece = new Knight(currentPiece.owner);
-        break;
-    }
+    newPiece = this.createPieceObject(currentPiece.name,currentPiece.owner,currentPiece.kills);
 
     let pieces = JSON.parse(JSON.stringify(this.state.pieces));
     let squares = [...this.state.squares];
@@ -341,32 +426,45 @@ export default class Game extends React.Component {
       }
   
       if (moving || attacking){
-        const isMovePossible = squares[sourceSelection].isMovePossible(sourceSelection, i, Boolean(squares[i]));
-          if (isMovePossible){
-            console.log("A piece was properly selected.. so moving..");
-            let previouslySelectedPiece = this.getPiece(sourceSelection);
-         
-            previouslySelectedPiece.position_history.push(i);
-            if (attacking){
-              if (selectedPiece.name === 'King'){
-                gameOver = true;
+        if (squares[sourceSelection].piece_name){
+          squares[sourceSelection] = this.createPieceObject(squares[sourceSelection].piece_name,squares[sourceSelection].player);
+        }
+        else {
+          if (squares[sourceSelection]){
+            const isMovePossible = squares[sourceSelection].isMovePossible(sourceSelection, i, Boolean(squares[i]));
+            if (isMovePossible){
+              console.log("A piece was properly selected.. so moving..");
+              let previouslySelectedPiece = this.getPiece(sourceSelection);
+              previouslySelectedPiece.position_history.push(i);
+              if (attacking){
+                if (selectedPiece.name === 'King'){
+                  gameOver = true;
+                }
+                selectedPiece.alive = false;
+                pieces = this.updatePiecesObject(pieces, selectedPiece);
+                previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
               }
-              selectedPiece.alive = false;
-              pieces = this.updatePiecesObject(pieces, selectedPiece);
-              previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
+              pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
+              console.log(previouslySelectedPiece);
+              let piece_object = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
+              squares[i] = piece_object;
+              squares[i].style = { ...squares[i].style, backgroundColor: "" };
+              squares[i].piece_name = this.getPiece(sourceSelection).name;
+              console.log("Name of square at this point");
+              console.log(squares[i].piece_name);
+              squares[sourceSelection] = null;
+              sourceSelection = -1;
+              this.switchPlayerTurn();
+              // this.updateGameState();
+            } else {
+              console.log("Invalid move, deselected");
+              squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
+              sourceSelection = -1;
             }
-            pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
-            console.log(previouslySelectedPiece);
-            squares[i] = squares[sourceSelection];
-            squares[i].style = { ...squares[i].style, backgroundColor: "" };
-            squares[sourceSelection] = null;
-            sourceSelection = -1;
-            this.switchPlayerTurn();
           } else {
-            console.log("Invalid move, deselected");
-            squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
-            sourceSelection = -1;
+            console.log("SOMETHING GOT BROKEN");
           }
+        }
         }
       this.setState({
         squares: squares,
@@ -382,8 +480,19 @@ export default class Game extends React.Component {
 
   render() {
 
+    const players = this.state.playerList.map((player, index) => {
+      if (index === 0){
+      return <p><span>♖</span> {player}</p>
+      } else if (index === 1) {
+        return <p><span>♜</span> {player}</p>
+      } else {
+        return <p>{player}</p>
+      }
+    })
+
     return (
       <div>
+        {players}
         <div className="game">
           <div className="game-board">
             <Board
@@ -414,7 +523,7 @@ export default class Game extends React.Component {
         <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
         <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
         <button onClick={() => this.theFloodEffect()}>Activate the Flood</button>
-
+        <button onClick={() => this.updateGameState()}>End Turn</button>
         <div className="icons-attribution">
           <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
         </div>
