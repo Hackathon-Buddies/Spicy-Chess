@@ -82,8 +82,10 @@ ol, ul {
 
 
 .event-container {
-  /* background-color: aqua; */
+  padding-left: 20%;
   text-align: center;
+  display: inline-block;
+  width: 100%;
 
 }
 
