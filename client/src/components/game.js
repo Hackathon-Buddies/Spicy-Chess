@@ -254,6 +254,7 @@ export default class Game extends React.Component {
         newPiece = new Knight(owner,kills);
         break;
     }
+    newPiece.piece_name = name;
     return newPiece
   }
 
@@ -434,42 +435,40 @@ export default class Game extends React.Component {
         if (squares[sourceSelection].piece_name){
           squares[sourceSelection] = this.createPieceObject(squares[sourceSelection].piece_name,squares[sourceSelection].player);
         }
-        else {
-          if (squares[sourceSelection]){
-            const isMovePossible = squares[sourceSelection].isMovePossible(sourceSelection, i, Boolean(squares[i]));
-            if (isMovePossible){
-              console.log("A piece was properly selected.. so moving..");
-              let previouslySelectedPiece = this.getPiece(sourceSelection);
-              previouslySelectedPiece.position_history.push(i);
-              if (attacking){
-                if (selectedPiece.name === 'King'){
-                  gameOver = true;
-                }
-                selectedPiece.alive = false;
-                pieces = this.updatePiecesObject(pieces, selectedPiece);
-                previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
+        if (squares[sourceSelection]){
+          const isMovePossible = squares[sourceSelection].isMovePossible(sourceSelection, i, Boolean(squares[i]));
+          if (isMovePossible){
+            console.log("A piece was properly selected.. so moving..");
+            let previouslySelectedPiece = this.getPiece(sourceSelection);
+            previouslySelectedPiece.position_history.push(i);
+            if (attacking){
+              if (selectedPiece.name === 'King'){
+                gameOver = true;
               }
-              pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
-              console.log(previouslySelectedPiece);
-              let piece_object = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
-              squares[i] = piece_object;
-              squares[i].style = { ...squares[i].style, backgroundColor: "" };
-              squares[i].piece_name = this.getPiece(sourceSelection).name;
-              console.log("Name of square at this point");
-              console.log(squares[i].piece_name);
-              squares[sourceSelection] = null;
-              sourceSelection = -1;
-              this.switchPlayerTurn();
-              // this.updateGameState();
-            } else {
-              console.log("Invalid move, deselected");
-              squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
-              sourceSelection = -1;
+              selectedPiece.alive = false;
+              pieces = this.updatePiecesObject(pieces, selectedPiece);
+              previouslySelectedPiece.kills = previouslySelectedPiece.kills + 1;
             }
+            pieces = this.updatePiecesObject(pieces, previouslySelectedPiece);
+            console.log(previouslySelectedPiece);
+            let piece_object = this.createPieceObject(previouslySelectedPiece.name, previouslySelectedPiece.owner, previouslySelectedPiece.kills);
+            squares[i] = piece_object;
+            squares[i].style = { ...squares[i].style, backgroundColor: "" };
+            console.log("Name of square at this point");
+            console.log(squares[i].piece_name);
+            squares[sourceSelection] = null;
+            sourceSelection = -1;
+            this.switchPlayerTurn();
+            // this.updateGameState();
           } else {
-            console.log("SOMETHING GOT BROKEN");
+            console.log("Invalid move, deselected");
+            squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
+            sourceSelection = -1;
           }
+        } else {
+          console.log("SOMETHING GOT BROKEN");
         }
+        
         }
       this.setState({
         squares: squares,
