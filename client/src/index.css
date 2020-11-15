@@ -1,7 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Goldman&family=Press+Start+2P&display=swap');
+
 body {
+  color: #ddd;
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;
-  background-color: #ECECEA;
+  background-color: #383838;
+  
+
+}
+
+input {
+  padding: 10px;
+  border: none;
+}
+
+button {
+  background-color: #0084ff;
+  font-family: "Press Start 2P";
+  color: #fff;
+  padding: 12px;
+  border: none;
 }
 
 ol, ul {
@@ -16,6 +34,69 @@ ol, ul {
 
 .status {
   margin-bottom: 10px;
+}
+
+.test-control-panel{
+  display: inline-block;   
+}
+
+.game-board{
+  display: inline-block;
+  background-color: aliceblue;
+  padding: 2px;
+}
+
+.game-container {
+
+}
+
+.game{
+
+  width: 60%;
+  float: right;
+  margin-left: 5%;
+  margin-top: 10%;
+}
+
+.players-container{
+  font-family: "Press Start 2P";
+  float: right;
+  width: 250px;
+  max-width: 25%;
+  border: rgb(119, 119, 119) solid 1px;
+  margin-right: 1%;
+  margin-top: 10%;
+}
+
+.player-name-elements{
+  text-align: left;
+  font-size: medium;
+  margin-left: 50px;
+  margin:5px;
+  padding: 0px;
+}
+
+.players-header{
+  margin-bottom: 5px;
+}
+
+
+.event-container {
+  /* background-color: aqua; */
+  text-align: center;
+
+}
+
+.event-title {
+  text-align: center;
+  font-size: large;
+  color: #f74134;
+
+}
+
+.event-gif {
+  max-width: 60%;
+  max-height: 10%;
 }
 
 .square {
@@ -55,11 +136,11 @@ ol, ul {
 
 /*Board color scheme Wheat from http://omgchess.blogspot.com/2015/09/chess-board-color-schemes.html*/
 .dark-square{
-background-color: RGB(187,190,100);
+background-color: #383838;
 }
 
 .light-square{
-    background-color: RGB(234,240,206);
+    background-color: #5de8f0;
 }
 
 #player-turn-box{
@@ -73,6 +154,14 @@ h3{
   margin-bottom: 5px;
 }
 
-#chat-Room-Area{
-  overflow-y:scroll;
+p{
+
+  font-family: "Press Start 2P";
+
+}
+
+span{
+
+  height:150px;
+  width: 150px;
 }

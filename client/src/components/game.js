@@ -12,7 +12,6 @@ import Bishop from '../pieces/bishop';
 import Rook from '../pieces/rook';
 import socketIOClient from "socket.io-client";
 import ENDPOINT from "../helpers/server-end-point";
-import $ from 'jquery';
 const GAME_STATE_EVENT = "gameState"; // Name of the event
 const PLAYER_LIST_EVENT = "playerList";
 const SOCKET_SERVER_URL = ENDPOINT;
@@ -34,7 +33,8 @@ export default class Game extends React.Component {
         black: []
       },
       gameOver: false,
-      playerList : []
+      playerList : [],
+      lastEventGif : {gif: "", text: ""}
 
     }
   }
@@ -113,6 +113,38 @@ export default class Game extends React.Component {
   });
 
 }
+
+  setEventGif = (event) => {
+    let gifUri = {gif: "", text: ""};
+
+    switch(event) {
+      case "victory":
+        gifUri.gif = "https://media1.tenor.com/images/e0a515f0f996a3263394fa49cbcd99b1/tenor.gif?itemid=18538102";
+        gifUri.text = "GAME OVER"
+        break;
+      case "flood":
+        gifUri.gif = "https://media1.tenor.com/images/3d247ed5ee6dc382f4efadbca3581b58/tenor.gif?itemid=11927736";
+        gifUri.text = "A great flood has cleansed the battlefield"
+        break;
+        
+      case "killing":
+        gifUri.gif = "https://media1.tenor.com/images/a0d13ec25f9774f155b6cd5ebf12a6c8/tenor.gif?itemid=18258403";
+        gifUri.text = "He was kinda sus anyways.."
+        break;
+
+      case "resurrection":
+        gifUri.gif = "https://media1.tenor.com/images/b6ac5ba4c30e2ce9a98b872167e4b2c2/tenor.gif?itemid=16213217";
+        gifUri.text = "...and thus the dead shall rise again"
+        break;
+      
+      case "plague":
+        gifUri.gif = "https://im6.ezgif.com/tmp/ezgif-6-b244014eab80.gif"
+        gifUri.text = "A deadly plague spreads through the battlefield"
+        break;
+    }
+
+    this.setState({lastEventGif: gifUri});
+  }
 
   update_server = (time) => {
     setTimeout(() => this.updateGameState(), time);
@@ -553,20 +585,21 @@ export default class Game extends React.Component {
 
     const players = this.state.playerList.map((player, index) => {
       if (index === 0){
-      return <p><span>♖</span> {player}</p>
+      return <p className="player-name-elements"><span>♜</span> {player}</p>
       } else if (index === 1) {
-        return <p><span>♜</span> {player}</p>
+        return <p className="player-name-elements"><span>♖</span> {player}</p>
       } else {
-        return <p>{player}</p>
+        return <p className="player-name-elements">{player}</p>
       }
     })
 
     return (
-      <div>
-        {players}
+      <>
+      <div className="game-container">
         <div className="game">
           <div className="game-board">
             <Board
+            className="board"
               squares={this.state.squares}
               onClick={(i) => this.handleClick(i)}
             />
@@ -589,17 +622,31 @@ export default class Game extends React.Component {
 
           </div>
         </div>
-        {/* Test buttons */}
+
+        <div className="players-container">
+          <h3 className="players-header">Players in room</h3>
+          {players}
+        </div>
+      </div>
+
+      <div className="test-control-panel">
+          test control panel
+
+                  {/* Test buttons */}
+        <button onClick={() => this.createKnightsTest(25)}>add knights1</button>
+        <button onClick={() => this.killPieceAt(0)}>Kill at 0</button>
+        <button onClick={() => this.resurrectPiece(0)}>Ressurect at 0</button>
         <button onClick={() => this.theFloodEffect()}>Activate the Flood</button>
         <button onClick={() => this.updateGameState()}>End Turn</button>
-        <div className="icons-attribution">
-          <div> <small> Chess Icons And Favicon (extracted) By en:User:Cburnett [<a href="http://www.gnu.org/copyleft/fdl.html">GFDL</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA-3.0</a>, <a href="http://opensource.org/licenses/bsd-license.php">BSD</a> or <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>], <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">via Wikimedia Commons</a> </small></div>
+        <button onClick={() => this.setEventGif("plague")}> plague </button>
+
         </div>
-        <ul>
-          <li><a href="https://github.com/TalhaAwan/react-chess" target="_blank">Source Code</a> </li>
-          <li><a href="https://www.techighness.com/post/develop-two-player-chess-game-with-react-js/">Blog Post</a></li>
-        </ul>
-      </div>
+
+        <div className="event-container">
+            <h1 className="event-title">{this.state.lastEventGif.text}</h1>
+            <img src={this.state.lastEventGif.gif} alt="" className="event-gif" />
+        </div>
+      </>
     );
   }
 }
