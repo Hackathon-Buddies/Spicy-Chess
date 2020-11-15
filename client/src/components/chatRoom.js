@@ -16,13 +16,14 @@ const ChatRoom = (props) => {
     };
 
     const handleSendMessage = () => {
-      sendMessage(newMessage);
-      setNewMessage("");
-
+  
+      if(!newMessage.length==0){
+        sendMessage(newMessage);
+        setNewMessage("");
+      }
      
     };
   
-    
     useEffect(() => {
 
       var element = document.getElementById("scroll-To-Top");
@@ -33,9 +34,12 @@ const ChatRoom = (props) => {
 
 
     return (
+      
       <div className="chat-room-container">
         <h1 className="room-name">Room: {roomId}</h1>
+        
         <div id = "scroll-To-Top" className="messages-container">
+        <div className="tempDiv" ></div>
           <ol   className="messages-list">
             {messages.map((message, i) => (
               <li id=""
@@ -49,6 +53,7 @@ const ChatRoom = (props) => {
             ))}
           </ol>
         </div>
+        <div className="combinedDiv">
         <textarea
           value={newMessage}
           onChange={handleNewMessageChange}
@@ -58,6 +63,8 @@ const ChatRoom = (props) => {
         <button onClick={handleSendMessage} className="send-message-button">
           Send
         </button>
+        </div>
+        
       </div>
     );
   };

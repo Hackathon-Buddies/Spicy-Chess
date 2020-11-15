@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Goldman&family=Press+Start+2P&display=swap');
+
 .chat-room-container {
     float: right;
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 25%;
+    
 }
 
 .room-name {
@@ -15,9 +18,11 @@
     min-height: 60vh;
     max-height: 60vh;
     overflow: auto;
-    
     border: 1px solid black;
     border-radius: 7px 7px 0 0;
+    position: relative;
+    background-color: red;
+
 }
 
 .messages-list {
@@ -27,13 +32,7 @@
     padding: 0;
 }
 
-.new-message-input-field {
-    /* height: 200px; */
-    max-height: 10%;
-    font-size: 20px;
-    padding: 8px 12px;
-    resize: none;
-}
+
 
 .message-item {
     width: 55%;
@@ -47,22 +46,65 @@
 .my-message {
     background-color: rgb(0, 132, 255);
     margin-left: auto;
+    position: relative;
+    font-family: "Press Start 2P";
+    text-align: right;
+
 }
 
 .received-message {
     background-color: #3f4042;
     margin-right: auto;
+    font-family: "Press Start 2P";
+    text-align: left;
+
 }
 
 .send-message-button {
-    font-size: 28px;
+    max-height: 10%;
+    min-height: 10%;
+    width: 100px;
+    height: 75px;
+    font-size: 20px;
     font-weight: 600;
     color: white;
-    background: #31a24c;
+    background-color: blue;
     padding: 24px 12px;
     border: none;
+    resize: none;
+    display:inline-block;
+    vertical-align: top;
+    font-family: "Press Start 2P";
+
+    
 }
 
+.send-message-button:hover {
+    color: red;
+  }
+
+
+.new-message-input-field {
+    height: 58px; 
+    width:73%;
+    max-height: 20%;
+    min-height: 20%;
+    font-size: 20px;
+    padding: 8px 12px;
+    background-color: #3f4042;
+    display:inline-block;
+    vertical-align: top;
+    resize: none;
+    color: white;
+    font-family: "Press Start 2P";
+
+
+}
+
+.new-message-input-field::placeholder {
+    font-family: "Press Start 2P";
+    font-size: 20px;
+}
 .messages-container, .new-message-input-field, .send-message-button {
     border-color: #9a9a9a;
 }
@@ -70,3 +112,14 @@
 #chat-Room-Area{
     overflow-y:scroll;
   }
+
+  h1{
+  text-align: left;
+  font-family: "Press Start 2P";
+
+  }
+
+  .combinedDiv {
+    text-align: left;
+   left: -50px;
+}
