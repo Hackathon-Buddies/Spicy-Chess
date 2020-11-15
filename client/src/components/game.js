@@ -404,7 +404,7 @@ export default class Game extends React.Component {
        // Selecting new piece
       if (selectedPiece !== null){
         // If piece belongs to the player in turn
-        if (this.canPlayerMove()){
+        if (this.canPlayerMove() && currentPlayer ===selectedPiece.owner){
           console.log("Valid piece selected...");
           console.log(selectedPiece);
           
@@ -459,7 +459,8 @@ export default class Game extends React.Component {
             squares[sourceSelection] = null;
             sourceSelection = -1;
             this.switchPlayerTurn();
-            // this.updateGameState();
+            
+            setTimeout(() => this.updateGameState(), 1000);
           } else {
             console.log("Invalid move, deselected");
             squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
