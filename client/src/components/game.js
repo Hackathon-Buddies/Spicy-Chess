@@ -459,7 +459,7 @@ export default class Game extends React.Component {
             squares[sourceSelection] = null;
             sourceSelection = -1;
             this.switchPlayerTurn();
-            // this.updateGameState();
+            setTimeout(() => this.updateGameState(), 1000);
           } else {
             console.log("Invalid move, deselected");
             squares[sourceSelection].style = { ...squares[sourceSelection].style, backgroundColor: "" };
