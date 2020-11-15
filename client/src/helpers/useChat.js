@@ -26,7 +26,6 @@ const useChat = (roomId) => {
             query: { roomId }
         });
 
-        console.log('socket', socketRef);
         // Listens for incoming messages
         socketRef.current.on(NEW_CHAT_MESSAGE_EVENT, (message) => {
             const incomingMessage = {
@@ -51,7 +50,6 @@ const useChat = (roomId) => {
                 body: messageBody,
                 senderId: socketRef.current.id,
             });
-            console.log('message sent ', messageBody);
         } catch (err) {
             alert(err);
         }
@@ -60,7 +58,6 @@ const useChat = (roomId) => {
     };
 
 
-    console.log("message being sent/recieved");
     return { messages, sendMessage };
 };
 

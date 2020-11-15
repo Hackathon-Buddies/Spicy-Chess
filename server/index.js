@@ -43,9 +43,31 @@ io.on("connection", socket => {
 
 
     // Listen for game state changes
+
+    // let gameStateData = {
+    //     squares: initialiseChessBoard(),
+    //     whiteFallenSoldiers: [],
+    //     blackFallenSoldiers: [],
+    //     player: 1,
+    //     sourceSelection: -1,
+    //     status: '',
+    //     turn: 'white',
+    //     pieces: {
+    //       white : [],
+    //       black: []
+    //     },
+    //     gameOver: false,
+    //     playerRole: useGameAllocation(props.room)
+    // }
+
     socket.on("gameState", (data) => {
         io.in(roomId).emit("gameState", data);
+        console.log(data);
+        
     });
+
+
+    // Disconnect
 
     socket.on("disconnect", () => {
         socket.leave(roomId);

@@ -8,7 +8,8 @@ function App() {
 
     const [room, setRoom] = useState("global");
     const [initialRoom, setInitialRoom] = useState("");
-    const [showGameScreen, setShowGameScreen] = useState(false)
+    const [showGameScreen, setShowGameScreen] = useState(false);
+    const [username, setUsername] = useState("");
 
 
     const handleRoomNameChange = (event) => {
@@ -16,11 +17,17 @@ function App() {
     };
 
     const handleRoomJoin = () => {
-        if(initialRoom){
+        if (initialRoom) {
             setRoom(initialRoom);
             setShowGameScreen(true);
         }
     }
+
+    const handleUsernameChange = (event) => {
+        setUsername(event.target.value)
+    }
+
+    // const sendUsername
 
     const gameContent = (<div className="outer-container">
         <div className="join-wrapper">
@@ -35,12 +42,25 @@ function App() {
         <div className="outer-container">
             <h1>Welcome to Spicy Chess</h1>
             <div className="join-wrapper">
+
+                <h2>What shall we call you?</h2>
+
+                <div>
+                    <input
+                        type="text"
+                        placeholder="your username..."
+                        value={username}
+                        onChange={handleUsernameChange}
+                        className="text-input-field"
+                    />
+                </div>
+
                 <h2>Find a worthy opponent</h2>
 
                 <div>
                     <input
                         type="text"
-                        placeholder="Join Room..."
+                        placeholder="Your room's name..."
                         value={initialRoom}
                         onChange={handleRoomNameChange}
                         className="text-input-field"
