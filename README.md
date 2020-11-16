@@ -1,31 +1,35 @@
-# React Chess
-Two player chess game built with React js.
+# Spicy Chess / 30hr Hackathon project
 
-## How To Install And Run Locally
+- Not your regular game of chess... multiplayer in a sense that even the spectators can participate.
+- Featuring a global chat you can use to find opponents and invite spectators, as well as a private room chat.
+- Simply share your room name and someone will be able to connect to it to play against you or just watch and mess with your board.
 
-- Pull the project and `cd` into it
-- Install packages with `npm install`
-- Finally `npm run start`, which will start hot reloading, and fire up browser with http://localhost:3000/
+
+## Game features
+
+- **Every click matters**: Each click has a random chance of triggering a special effect. Both players and all spectators can trigger these multiple times.
+
+**Effects**
+- The Flood: All pieces run away to their starting location, killing any enemy pieces currently in their spot.
+- The Double Edged sword: Kill the piece you just clicked on. Friendly fire is allowed. Keep that in mind when you click your own pieces to move.
+- The Ressurrection: Bring a piece back to life. It doesn't matter who is clicking, if you or your enemy clicks on the initial spot of a piece, there is a chance to revive that piece.
+- The Plague: All pieces have a 30% chance of instantly dying when this event is triggered.
+
+<br>
+
+**The only way to win** : Kill the enemy king. No more stalemates. No more checks or checkmates. No more warnings.
+<br><br>
+Oh and you can kill your own king by clicking on it too much.
+
 
 ## How It's Built
-The components boilerplate structure consisting of Game, Board and Square is same as of Facebook [tic tac toe tutorial](https://facebook.github.io/react/tutorial/tutorial.html).
+- Hosted on Netlify and Heroku
+- Connected with Socket.io
+- Front End made entirely in React.JS
 
-ES6 classes have been used for chess pieces. `Piece` is a parent class to which `King`, `Queen`, `Bishop`, `Knight`, `Rook` and `Pawn` extend. Board of squares is filled with these pieces and `null`.
 
-`Game` component maintains the board of squares filled with pieces, and handles turn and move of both players. 
+## Try it
 
-Each piece implements `isMovePossible(src, dest)` and `getSrcToDestPath(src, dest)` methods which `Game` uses to identify legality of move and to render UI accordingly.
-
-## To Dos
-- Implement a method in `Game` that returns true if this move exposes the player's king to check. Use it to disallow the move and inform user.
-- Write unit tests 
-
-## Demo
-
-http://www.talhaawan.net/react-chess/
-
-## Blog Post
-
-https://www.techighness.com/post/develop-two-player-chess-game-with-react-js/
+https://spicy-chess.netlify.app/
 
 
