@@ -10,10 +10,10 @@
 - **Every click matters**: Each click has a random chance of triggering a special effect. Both players and all spectators can trigger these multiple times.
 
 **Effects**
-- The Flood: All pieces run away to their starting location, killing any enemy pieces currently in their spot.
-- The Double Edged sword: Kill the piece you just clicked on. Friendly fire is allowed. Keep that in mind when you click your own pieces to move.
-- The Ressurrection: Bring a piece back to life. It doesn't matter who is clicking, if you or your enemy clicks on the initial spot of a piece, there is a chance to revive that piece.
-- The Plague: All pieces have a 30% chance of instantly dying when this event is triggered.
+- **The Flood:** All pieces run away to their starting location, killing any enemy pieces currently in their spot.
+- **The Double Edged sword:** Kill the piece you just clicked on. Friendly fire is allowed. Keep that in mind when you click your own pieces to move.
+- **The Ressurrection:** Bring a piece back to life. It doesn't matter who is clicking, if you or your enemy clicks on the initial spot of a piece, there is a chance to revive that piece.
+- **The Plague:** All pieces have a 30% chance of instantly dying when this event is triggered.
 
 <br>
 
